@@ -84,22 +84,22 @@ class BlockingFuture:
         return format(self.__future__.result(), format_spec)
 
     def __lt__(self, other):
-        return self.__future__.result().__lt__(other)
+        return self.__future__.result() < other
 
     def __le__(self, other):
-        return self.__future__.result().__le__(other)
+        return self.__future__.result() <= other
 
     def __eq__(self, other):
-        return self.__future__.result().__eq__(other)
+        return self.__future__.result() == other
 
     def __ne__(self, other):
-        return self.__future__.result().__ne__(other)
+        return self.__future__.result() != other
 
     def __gt__(self, other):
-        return self.__future__.result().__gt__(other)
+        return self.__future__.result() > other
 
     def __ge__(self, other):
-        return self.__future__.result().__ge__(other)
+        return self.__future__.result() >= other
 
     def __hash__(self):
         return hash(self.__future__.result())
