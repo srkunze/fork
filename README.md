@@ -31,9 +31,9 @@ Like this:
     result = fork(my_func, *args, **kwargs)
 
 
-## And what is result? ##
+## And what is this result? ##
 
-A future that behaves almost exactly as if it were the result. That in turn means, as soon as you access the result and it is not ready yet, the main thread blocks.
+A future that behaves almost exactly as if it were the return value of my_func. That in turn means, as soon as you access the result and it is not ready yet, the main thread blocks.
 
 
 ## Speaking of threads ... ##
