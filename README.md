@@ -60,11 +60,11 @@ If necessary, decorate your functions:
 
 - easy way back and forth (from sequential to parallel and vice versa)
 - cascading possible (thread-safe)
+- Python 3 and 2 (via pip install futures)
 
 ### Bad ###
 
 - weird calling syntax (no syntax support)
 - type(result) == BlockingFuture
-- only Python 3 for now
 - not working with asyncio (coroutines)
 - not working with lambdas
