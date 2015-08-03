@@ -65,4 +65,5 @@ If necessary, decorate your functions:
 - weird calling syntax (no syntax support)
 - type(result) == BlockingFuture
 - only Python 3 for now
+- not working with lambdas
 - not thread-safe
