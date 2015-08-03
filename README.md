@@ -59,6 +59,7 @@ If necessary, decorate your functions:
 ### Good ###
 
 - easy way back and forth (from sequential to parallel and vice versa)
+- cascading possible (thread-safe)
 
 ### Bad ###
 
@@ -66,4 +67,3 @@ If necessary, decorate your functions:
 - type(result) == BlockingFuture
 - only Python 3 for now
 - not working with lambdas
-- not thread-safe

@@ -4,56 +4,57 @@ from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import Future
 
 
-__all__ = ['fork', 'unsafe', 'cpu_bound', 'io_bound', 'UnknownWaitingTypeError']
+__all__ = ['fork', 'cpu_bound', 'io_bound', 'unsafe', 'UnknownWaitingForError']
 
 
-_pools = threading.local()
-_pools.processes = ProcessPoolExecutor()
-_pools.threads = ThreadPoolExecutor(_pools.processes._max_workers)
+_pools_of = threading.local()
+_pools_of.processes = ProcessPoolExecutor()
+_pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
 
 
 def fork(callable_, *args, **kwargs):
-    waiting_type = getattr(callable_, '__waiting_type__', 'cpu')
-    if waiting_type == 'cpu':
-        return BlockingFuture(_pools.processes.submit(_wrapper, callable_, *args, **kwargs))
-    elif waiting_type == 'io':
-        return BlockingFuture(_pools.threads.submit(_wrapper, callable_, *args, **kwargs))
-    elif waiting_type == 'unsafe':
+    has_side_effects = getattr(callable_, '__has_side_effects__', False)
+    if has_side_effects:
         return callable_(*args, **kwargs)
-    raise UnknownWaitingTypeError(waiting_type)
+    waiting_for = getattr(callable_, '__waiting_for__', 'cpu')
+    if waiting_for == 'cpu':
+        return BlockingFuture(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
+    elif waiting_for == 'io':
+        return BlockingFuture(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs))
+    raise UnknownWaitingForError(waiting_type)
 
 
-def _wrapper(callable_, *args, **kwargs):
-    _pools.processes = ProcessPoolExecutor()
-    _pools.threads = ThreadPoolExecutor(_pools.processes._max_workers)
+def _safety_wrapper(callable_, *args, **kwargs):
+    _pools_of.processes = ProcessPoolExecutor()
+    _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
     result = callable_(*args, **kwargs)
-    _pools.processes.shutdown()
-    _pools.threads.shutdown()
+    _pools_of.processes.shutdown()
+    _pools_of.threads.shutdown()
     return result
 
 
 def cpu_bound(callable_):
-    callable_.__waiting_type__ = 'cpu'
+    callable_.__has_side_effects__ = False
+    callable_.__waiting_for__ = 'cpu'
     return callable_
 
 
 def io_bound(callable_):
-    callable_.__waiting_type__ = 'io'
+    callable_.__has_side_effects__ = False
+    callable_.__waiting_for__ = 'io'
     return callable_
 
 
 def unsafe(callable_):
-    callable_.__waiting_type__ = 'unsafe'
+    callable_.__has_side_effects__ = True
     return callable_
 
 
-def UnknownWaitingTypeError(Exception):
-
+def UnknownWaitingForError(Exception):
     pass
 
 
 class BlockingFuture:
-
     def __init__(self, future):
         self.__future__ = future
 
