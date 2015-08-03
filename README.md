@@ -43,7 +43,7 @@ and processes? That depends on whether your function is @io_bound or @cpu_bound.
 If necessary, decorate your functions:
 
     @io_bound
-    def my_webservice():
+    def call_remote_webservice():
         # implementation
 
     @cpu_bound
