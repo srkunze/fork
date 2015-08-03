@@ -10,7 +10,7 @@ def fib(n):
 @io_bound
 def webservice():
     time.sleep(0.1)
-    return 'res'
+    return 'result'
 
 
 @cpu_bound
@@ -20,6 +20,7 @@ def raise_an_error():
 
 
 def test_cpu_bound(n):
+    print('##### test_cpu_bound #####')
     start = time.time()
     seq_results = []
     for i in range(n):
@@ -43,6 +44,7 @@ def test_cpu_bound(n):
 
 
 def test_io_bound(n):
+    print('##### test_io_bound #####')
     start = time.time()
     seq_results = []
     for i in range(n):
@@ -64,8 +66,5 @@ def test_io_bound(n):
     else:
         print('results are unequal')
 
-print('##### start #######')
 test_cpu_bound(n=35)
-print('##### next #######')
 test_io_bound(n=30)
-print('##### end #######')
