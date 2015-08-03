@@ -1,3 +1,4 @@
+import threading
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import Future
@@ -6,24 +7,29 @@ from concurrent.futures import Future
 __all__ = ['fork', 'unsafe', 'cpu_bound', 'io_bound', 'UnknownWaitingTypeError']
 
 
-_process_pool = ProcessPoolExecutor()
-_thread_pool = ThreadPoolExecutor(_process_pool._max_workers)
+_pools = threading.local()
+_pools.processes = ProcessPoolExecutor()
+_pools.threads = ThreadPoolExecutor(_pools.processes._max_workers)
 
 
 def fork(callable_, *args, **kwargs):
     waiting_type = getattr(callable_, '__waiting_type__', 'cpu')
     if waiting_type == 'cpu':
-        return BlockingFuture(_process_pool.submit(callable_, *args, **kwargs))
+        return BlockingFuture(_pools.processes.submit(_wrapper, callable_, *args, **kwargs))
     elif waiting_type == 'io':
-        return BlockingFuture(_thread_pool.submit(callable_, *args, **kwargs))
+        return BlockingFuture(_pools.threads.submit(_wrapper, callable_, *args, **kwargs))
     elif waiting_type == 'unsafe':
         return callable_(*args, **kwargs)
     raise UnknownWaitingTypeError(waiting_type)
 
 
-def unsafe(callable_):
-    callable_.__waiting_type__ = 'unsafe'
-    return callable_
+def _wrapper(callable_, *args, **kwargs):
+    _pools.processes = ProcessPoolExecutor()
+    _pools.threads = ThreadPoolExecutor(_pools.processes._max_workers)
+    result = callable_(*args, **kwargs)
+    _pools.processes.shutdown()
+    _pools.threads.shutdown()
+    return result
 
 
 def cpu_bound(callable_):
@@ -33,6 +39,11 @@ def cpu_bound(callable_):
 
 def io_bound(callable_):
     callable_.__waiting_type__ = 'io'
+    return callable_
+
+
+def unsafe(callable_):
+    callable_.__waiting_type__ = 'unsafe'
     return callable_
 
 
