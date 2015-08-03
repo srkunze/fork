@@ -60,7 +60,8 @@ If necessary, decorate your functions:
 
 - easy way back and forth (from sequential to parallel and vice versa)
 - cascading possible (thread-safe)
-- Python 3 and 2 (via pip install futures)
+- Python 3 (out of the box)
+- Python 2 (via pip install futures)
 
 ### Bad ###
 
@@ -68,3 +69,4 @@ If necessary, decorate your functions:
 - type(result) == BlockingFuture
 - not working with asyncio (coroutines)
 - not working with lambdas
+- future is not contagious yet
