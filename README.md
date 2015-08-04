@@ -70,3 +70,4 @@ If necessary, decorate your functions:
 - not working with asyncio (coroutines)
 - not working with lambdas
 - future is not contagious yet
+- @cpu_bound_fork and @io_bound_fork not working due to PickleError
