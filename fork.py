@@ -59,10 +59,6 @@ def cpu_bound_fork(callable_):
     """
     Converts callable into a fork marked as mainly
     cpu-bound and safe for running off the MainThread.
-
-    NOTE:
-    @cpu_bound_fork does not work. Use
-    func = cpu_bound_fork(old_func)
     """
     callable_ = cpu_bound(callable_)
 
@@ -82,10 +78,6 @@ def io_bound_fork(callable_):
     """
     Converts callable into a fork marked as mainly
     io-bound and safe for running off the MainThread.
-
-    NOTE:
-    @io_bound_fork does not work. Use
-    func = io_bound_fork(old_func)
     """
     callable_ = io_bound(callable_)
     @wraps(callable_)
