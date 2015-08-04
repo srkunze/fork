@@ -67,7 +67,7 @@ If necessary, decorate your functions:
 
 - weird calling syntax (no syntax support)
 - type(result) == BlockingFuture
-- not working with asyncio (coroutines)
-- not working with lambdas
+- not working with coroutines (asyncio) yet
 - future is not contagious yet
+- not working with lambdas due to PickleError
 - @cpu_bound_fork and @io_bound_fork not working due to PickleError
