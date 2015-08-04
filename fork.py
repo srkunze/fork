@@ -25,7 +25,7 @@ def fork(callable_, *args, **kwargs):
         return BlockingFuture(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
     elif waiting_for == 'io':
         return BlockingFuture(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs))
-    raise UnknownWaitingForError(waiting_type)
+    raise UnknownWaitingForError(waiting_for)
 
 
 def _safety_wrapper(callable_, *args, **kwargs):
