@@ -1,7 +1,6 @@
 import threading
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import Future
 
 
 __all__ = ['fork', 'cpu_bound', 'io_bound', 'unsafe', 'UnknownWaitingForError']
