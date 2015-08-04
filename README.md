@@ -54,6 +54,23 @@ If necessary, decorate your functions:
     def weird_side_effects(*args, **kwargs):
         # implementation
 
+## Something else? ##
+
+Sure. If you don't like the fork calling syntax, try those decorators:
+
+    @io_bound_fork
+    def create_thumbnail_by_webservice(image):
+        # implementation
+    
+    @cpu_bound_fork
+    def create_thumbnail_by_bare_processing_power(image):
+        # implementation
+    
+    # the following two lines spawn two forks
+    create_thumbnail_by_webservice()
+    create_thumbnail_by_bare_processing_power()
+    
+
 ## Conclusion ##
 
 ### Good ###
