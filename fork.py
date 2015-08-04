@@ -3,7 +3,7 @@ from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 
 
-__all__ = ['fork', 'cpu_bound', 'io_bound', 'unsafe', 'UnknownWaitingForError']
+__all__ = ['fork', 'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe', 'UnknownWaitingForError']
 
 
 _pools_of = threading.local()
@@ -38,7 +38,7 @@ def _safety_wrapper(callable_, *args, **kwargs):
 
 def cpu_bound(callable_):
     """
-    Mark a callable as mainly cpu-bound and safe for running off the MainThread.
+    Marks callable as mainly cpu-bound and safe for running off the MainThread.
     """
     callable_.__has_side_effects__ = False
     callable_.__waiting_for__ = 'cpu'
@@ -47,16 +47,46 @@ def cpu_bound(callable_):
 
 def io_bound(callable_):
     """
-    Mark a callable as mainly io-bound and safe for running off the MainThread.
+    Marks callable as mainly io-bound and safe for running off the MainThread.
     """
     callable_.__has_side_effects__ = False
     callable_.__waiting_for__ = 'io'
     return callable_
 
 
+def cpu_bound_fork(callable_):
+    """
+    Converts callable into a fork marked as mainly
+    cpu-bound and safe for running off the MainThread.
+
+    NOTE:
+    @cpu_bound_fork does not work. Use
+    func = cpu_bound_fork(old_func)
+    """
+    callable_ = cpu_bound(callable_)
+    def fork_wrapper(*args, **kwargs):
+        return fork(callable_, *args, **kwargs)
+    return fork_wrapper
+
+
+def io_bound_fork(callable_):
+    """
+    Converts callable into a fork marked as mainly
+    io-bound and safe for running off the MainThread.
+
+    NOTE:
+    @io_bound_fork does not work. Use
+    func = io_bound_fork(old_func)
+    """
+    callable_ = io_bound(callable_)
+    def fork_wrapper(*args, **kwargs):
+        return fork(callable_, *args, **kwargs)
+    return fork_wrapper
+
+
 def unsafe(callable_):
     """
-    Mark a callable as not safe for running off the MainThread.
+    Marks callable as not safe for running off the MainThread.
     """
     callable_.__has_side_effects__ = True
     return callable_
