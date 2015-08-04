@@ -13,7 +13,7 @@ _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
 
 def fork(callable_, *args, **kwargs):
     """
-    Submit the given callable to another process or thread
+    Submit a callable to another process or thread
     depending on its io- or cpu-boundness.
     """
     has_side_effects = getattr(callable_, '__has_side_effects__', False)
@@ -38,7 +38,7 @@ def _safety_wrapper(callable_, *args, **kwargs):
 
 def cpu_bound(callable_):
     """
-    Mark the given callable as mainly cpu-bound and safe for running off the MainThread.
+    Mark a callable as mainly cpu-bound and safe for running off the MainThread.
     """
     callable_.__has_side_effects__ = False
     callable_.__waiting_for__ = 'cpu'
@@ -47,7 +47,7 @@ def cpu_bound(callable_):
 
 def io_bound(callable_):
     """
-    Mark the given callable as mainly io-bound and safe for running off the MainThread.
+    Mark a callable as mainly io-bound and safe for running off the MainThread.
     """
     callable_.__has_side_effects__ = False
     callable_.__waiting_for__ = 'io'
@@ -56,13 +56,14 @@ def io_bound(callable_):
 
 def unsafe(callable_):
     """
-    Mark the given callable as not safe for running somewhere else than the MainThread.
+    Mark a callable as not safe for running somewhere else than the MainThread.
     """
     callable_.__has_side_effects__ = True
     return callable_
 
 
 def UnknownWaitingForError(Exception):
+
     pass
 
 
