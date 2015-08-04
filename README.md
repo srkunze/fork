@@ -26,7 +26,7 @@ Like this:
         fork(create_thumbnail, image)
 
 
-## What about results? ##
+## What about return values? ##
 
     result = fork(my_func, *args, **kwargs)
 
