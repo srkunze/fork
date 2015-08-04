@@ -177,6 +177,112 @@ class BlockingFuture(object):
     def __contains__(self, item):
         return item in self.__future__.result()
 
+    def __add__(self, other):
+        return self.__future__.result() + other
+
+    def __sub__(self, other):
+        return self.__future__.result() - other
+
+    def __mul__(self, other):
+        return self.__future__.result() * other
+
+    def __truediv__(self, other):
+        return self.__future__.result() / other
+
+    def __floordiv__(self, other):
+        return self.__future__.result() // other
+
+    def __mod__(self, other):
+        return self.__future__.result() % other
+
+    def __divmod__(self, other):
+        return divmod(self.__future__.result(), other)
+
+    def __pow__(self, other, modulo=None):
+        return pow(self.__future__.result(), other, modulo)
+
+    def __lshift__(self, other):
+        return self.__future__.result() << other
+
+    def __rshift__(self, other):
+        return self.__future__.result() >> other
+
+    def __and__(self, other):
+        return self.__future__.result() & other
+
+    def __xor__(self, other):
+        return self.__future__.result() ^ other
+
+    def __or__(self, other):
+        return self.__future__.result() | other
+
+    def __radd__(self, other):
+        return other + self.__future__.result()
+
+    def __rsub__(self, other):
+        return other - self.__future__.result()
+
+    def __rmul__(self, other):
+        return other * self.__future__.result()
+
+    def __rtruediv__(self, other):
+        return other / self.__future__.result()
+
+    def __rfloordiv__(self, other):
+        return other // self.__future__.result()
+
+    def __rmod__(self, other):
+        return other % self.__future__.result()
+
+    def __rdivmod__(self, other):
+        return divmod(other, self.__future__.result())
+
+    def __rpow__(self, other):
+        return pow(other, self.__future__.result())
+
+    def __rlshift__(self, other):
+        return other << self.__future__.result()
+
+    def __rrshift__(self, other):
+        return other >> self.__future__.result()
+
+    def __rand__(self, other):
+        return other & self.__future__.result()
+
+    def __rxor__(self, other):
+        return other ^ self.__future__.result()
+
+    def __ror__(self, other):
+        return other | self.__future__.result()
+
+    def __neg__(self):
+        return -self.__future__.result()
+
+    def __pos__(self):
+        return +self.__future__.result()
+
+    def __abs__(self):
+        return abs(self.__future__.result())
+
+    def __invert__(self):
+        return ~self.__future__.result()
+
+    def __complex__(self):
+        return complex(self.__future__.result())
+
+    def __int__(self):
+        return int(self.__future__.result())
+
+    def __float__(self):
+        return float(self.__future__.result())
+
+    def __round__(self, n=None):
+        return round(self.__future__.result(), n)
+
+    def __index__(self):
+        from operator import index
+        return index(self.__future__.result())
+
     def __enter__(self):
         return self.__future__.result().__enter__()
 
