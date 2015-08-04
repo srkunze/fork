@@ -177,6 +177,12 @@ class BlockingFuture(object):
     def __contains__(self, item):
         return item in self.__future__.result()
 
+    def __enter__(self):
+        return self.__future__.result().__enter__()
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        return self.__future__.result().__exit__(exc_type, exc_value, traceback)
+
     def __objclass__(self):
         return self.__future__.result().__objclass__
 
