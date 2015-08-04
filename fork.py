@@ -56,7 +56,7 @@ def io_bound(callable_):
 
 def unsafe(callable_):
     """
-    Mark a callable as not safe for running somewhere else than the MainThread.
+    Mark a callable as not safe for running off the MainThread.
     """
     callable_.__has_side_effects__ = True
     return callable_
