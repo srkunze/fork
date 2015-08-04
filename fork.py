@@ -67,7 +67,8 @@ def UnknownWaitingForError(Exception):
     pass
 
 
-class BlockingFuture:
+class BlockingFuture(object):
+    
     def __init__(self, future):
         self.__future__ = future
 
@@ -133,7 +134,7 @@ class BlockingFuture:
 
     def __getattribute__(self, name):
         if name == '__future__':
-            return super().__getattribute__('__future__')
+            return super(BlockingFuture, self).__getattribute__('__future__')
         if name == '__class__':
             return self.__future__.result().__class__
         return self.__future__.result().__getattribute__(name)
