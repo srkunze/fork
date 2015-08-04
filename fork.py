@@ -159,6 +159,24 @@ class BlockingFuture(object):
     def __length_hint__(self):
         return self.__future__.result().__length_hint__()
 
+    def __getitem__(self, key):
+        return self.__future__.result()[key]
+
+    def __setitem__(self, key, value):
+        self.__future__.result()[key] = value
+
+    def __delitem__(self, key):
+        del self.__future__.result()[key]
+
+    def __iter__(self):
+        return iter(self.__future__.result())
+
+    def __reversed__(self):
+        return reversed(self.__future__.result())
+
+    def __contains__(self, item):
+        return item in self.__future__.result()
+
     def __objclass__(self):
         return self.__future__.result().__objclass__
 
