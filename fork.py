@@ -1,3 +1,4 @@
+from functools import wraps
 import threading
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
@@ -64,8 +65,16 @@ def cpu_bound_fork(callable_):
     func = cpu_bound_fork(old_func)
     """
     callable_ = cpu_bound(callable_)
+
+    @wraps(callable_)
     def fork_wrapper(*args, **kwargs):
         return fork(callable_, *args, **kwargs)
+
+    import sys
+    new_name = '__decorated_{name}__'.format(name=callable_.__name__)
+    callable_.__name__ = new_name
+    setattr(sys.modules[callable_.__module__], new_name, callable_)
+
     return fork_wrapper
 
 
@@ -79,6 +88,7 @@ def io_bound_fork(callable_):
     func = io_bound_fork(old_func)
     """
     callable_ = io_bound(callable_)
+    @wraps(callable_)
     def fork_wrapper(*args, **kwargs):
         return fork(callable_, *args, **kwargs)
     return fork_wrapper
@@ -178,6 +188,7 @@ class BlockingFuture(object):
         return item in self.__future__.result()
 
     def __add__(self, other):
+
         return self.__future__.result() + other
 
     def __sub__(self, other):
@@ -298,4 +309,3 @@ class BlockingFuture(object):
         if name == '__class__':
             return self.__future__.result().__class__
         return self.__future__.result().__getattribute__(name)
-

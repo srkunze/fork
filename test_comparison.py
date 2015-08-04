@@ -6,14 +6,19 @@ from fork import *
 def fib(n):
     return 1 if n <= 1 else fib(n-1) + fib(n-2)
 
-fib_fork = cpu_bound_fork(fib)
+@cpu_bound_fork
+def fib_fork(n):
+    return 1 if n <= 1 else fib(n-1) + fib(n-2)
 
 @io_bound
 def webservice():
     time.sleep(0.1)
     return 'result'
 
-webservice_fork = io_bound_fork(webservice)
+@cpu_bound_fork
+def webservice_fork():
+    time.sleep(0.1)
+    return 'result'
 
 
 def test_cpu_bound(n):
