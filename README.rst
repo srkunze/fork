@@ -97,8 +97,8 @@ Good
 
 - easy way back and forth (from sequential to parallel and vice versa)
 - cascading possible (thread-safe)
-- Python 3 (out of the box)
-- Python 2 (via pip install futures_)
+- supports Python 3 (out of the box)
+- supports Python 2 (via pip install futures_)
 
 Bad
 ***
