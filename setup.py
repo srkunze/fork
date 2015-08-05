@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from distutils.core import setup
+import sys
+from setuptools import setup
 
 setup(
     name='xfork',
@@ -9,11 +10,14 @@ setup(
     author='Sven R. Kunze',
     author_email='srkunze@mail.de',
     url='https://github.com/srkunze/fork',
-    py_modules=['fork'],
+    license='MIT',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
     ],
+
+    py_modules=['fork'],
+    install_requires=['futures'] if sys.version_info[0] == 2 else []
 )
