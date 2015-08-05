@@ -96,15 +96,17 @@ Good
 - easy way back and forth (from sequential to parallel and vice versa)
 - cascading possible (thread-safe)
 - Python 3 (out of the box)
-- Python 2 (via pip install futures)
+- Python 2 (via pip install futures_)
 
 Bad
 ***
 
 - weird calling syntax (no syntax support)
 - type(result) == BlockingFuture
-- not working with coroutines (asyncio) yet
+- not working with coroutines (asyncio_) yet
 - future is not contagious yet
 - not working with lambdas due to PickleError
 
 .. _FORK: https://pypi.python.org/pypi/xfork
+.. _futures: https://pypi.python.org/pypi/futures
+.. _asyncio: https://docs.python.org/3/library/asyncio.html
