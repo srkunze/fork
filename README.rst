@@ -48,9 +48,9 @@ A future that behaves almost exactly as if it were the return value of my_func. 
 Speaking of threads ...
 -----------------------
 
-and processes? That depends on whether your function is @io_bound or @cpu_bound. Not decorated means @cpu_bound.
+and processes? fork will take care of that for you.
 
-If necessary, decorate your functions:
+You can assist fork by decorating your functions (not decorating defaults to cpu_bound):
 
 .. code:: python
 
