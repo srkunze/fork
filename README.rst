@@ -1,20 +1,24 @@
 FORK_
 =====
+
 Convert a classic sequential program into parallel one.
 
 
 Why?
 ----
+
 It runs faster.
 
 
 What if not?
 ------------
+
 Don't use it.
 
 
 How?
 ----
+
 Like this:
 
 .. code:: python
@@ -38,11 +42,13 @@ What about return values?
 
 And what is this result?
 ------------------------
+
 A future that behaves almost exactly as if it were the return value of my_func. That in turn means, as soon as you access the result and it is not ready yet, the main thread blocks.
 
 
 Speaking of threads ...
 -----------------------
+
 and processes? That depends on whether your function is @io_bound or @cpu_bound. Not decorated means @cpu_bound.
 
 If necessary, decorate your functions:
@@ -63,6 +69,7 @@ If necessary, decorate your functions:
 
 Something else?
 ---------------
+
 Sure. If you don't like the fork calling syntax, try those decorators:
 
 .. code:: python
@@ -82,6 +89,7 @@ Sure. If you don't like the fork calling syntax, try those decorators:
 
 Conclusion
 ----------
+
 Good
 ****
 
