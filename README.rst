@@ -28,7 +28,7 @@ How?
         fork(create_thumbnail, image) # parallelized explicitly 
 
     for image in images:
-        create_thumbnail(image)       # parallelized implictly (read below)
+        create_thumbnail(image)       # parallelized implicitly (read below)
 
 
 What about return values?
@@ -105,6 +105,7 @@ Bad
 - not working with coroutines (asyncio_) yet
 - future is not contagious yet
 - not working with lambdas due to PickleError
+
 
 .. _FORK: https://pypi.python.org/pypi/xfork
 .. _futures: https://pypi.python.org/pypi/futures
