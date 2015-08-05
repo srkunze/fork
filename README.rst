@@ -30,7 +30,7 @@ Like this:
         fork(create_thumbnail, image) # parallelized explicitly 
 
     for image in images:
-        create_thumbnail(image)       # parallelized implictly (Caution: Magic) 
+        create_thumbnail(image)       # parallelized implictly (read below)
 
 
 What about return values?
@@ -68,10 +68,11 @@ If necessary, decorate your functions:
     def weird_side_effects(*args, **kwargs):
         # implementation
 
+
 Something else?
 ---------------
 
-Sure. If you don't like the fork calling syntax, try those decorators:
+Sure. If you don't like the fork calling syntax, try these decorators to parallelize implicitly:
 
 .. code:: python
 
@@ -86,7 +87,9 @@ Sure. If you don't like the fork calling syntax, try those decorators:
     # the following two lines spawn two forks
     create_thumbnail_by_webservice()
     create_thumbnail_by_bare_processing_power()
-    
+
+**Use with caution; magic involved.**
+
 
 Conclusion
 ----------
