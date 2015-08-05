@@ -1,7 +1,7 @@
 FORK_
 =====
 
-Convert a classic sequential program into parallel one.
+Convert a classic sequential program into a parallel one.
 
 
 Why?
