@@ -303,3 +303,26 @@ class BlockingFuture(object):
         if name == '__class__':
             return self.__future__.result().__class__
         return self.__future__.result().__getattribute__(name)
+
+
+class OpFuture(BlockingFuture):
+
+    def __init__(self, op, x1, x2):
+        self.__future__ = OpWrapper(op, x1, x2)
+
+
+class OpWrapper(object):
+
+    def __init__(self, op, x1, x2):
+        self.op = op
+        self.x1 = x1
+        self.x2 = x2
+
+    def result(self):
+        x1 = self.x1
+        if hasattr(x1, 'result'):
+            x1 = x1.result()
+        x2 = self.x2
+        if hasattr(x2, 'result'):
+            x2 = x2.result()
+        return op(x1, x2)
