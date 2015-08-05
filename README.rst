@@ -87,8 +87,6 @@ Parallelize implicitly?
     create_thumbnail_by_bare_processing_power()
 
 
-
-
 Conclusion
 ----------
 
