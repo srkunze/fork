@@ -69,10 +69,10 @@ If necessary, decorate your functions:
         # implementation
 
 
-Something else?
----------------
+Parallelize implicitly?
+-----------------------
 
-Sure. If you don't like the fork calling syntax, try these decorators to parallelize implicitly:
+**Use with caution; magic involved.**
 
 .. code:: python
 
@@ -88,7 +88,7 @@ Sure. If you don't like the fork calling syntax, try these decorators to paralle
     create_thumbnail_by_webservice()
     create_thumbnail_by_bare_processing_power()
 
-**Use with caution; magic involved.**
+
 
 
 Conclusion
