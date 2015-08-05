@@ -24,7 +24,7 @@ Like this:
 .. code:: python
 
     for image in images:
-        create_thumbnail(image) # original
+        create_thumbnail(image)       # original
 
     for image in images:
         fork(create_thumbnail, image) # parallelized
