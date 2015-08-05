@@ -92,7 +92,7 @@ If you don't like the fork calling syntax, you can convert certain functions int
 Contagious futures?
 -------------------
 
-You feel like debugging is too easy, don't you? Go ahead.
+You feel like debugging is too easy and you still need more performance? Go ahead.
 
 **Use with extreme caution**
 
