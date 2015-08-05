@@ -30,7 +30,8 @@ Like this:
 
 What about return values?
 -------------------------
-::
+
+.. code:: python
 
     result = fork(my_func, *args, **kwargs)
 
