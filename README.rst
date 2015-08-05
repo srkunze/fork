@@ -109,7 +109,7 @@ You feel like debugging is too easy, don't you? Go ahead.
 
     # or
 
-    @io_bound
+    @io_bound # also works with *_fork
     @contagious
     def item():
         # implementation
