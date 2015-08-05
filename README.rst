@@ -23,13 +23,11 @@ Like this:
 
 .. code:: python
 
-    # sequential
     for image in images:
-        create_thumbnail(image)
+        create_thumbnail(image) # business as usual
 
-    # parallel
     for image in images:
-        fork(create_thumbnail, image)
+        fork(create_thumbnail, image) # parallelized
 
 
 What about return values?
