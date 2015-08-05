@@ -16,7 +16,8 @@ Don't use it.
 How?
 ----
 Like this:
-::
+
+.. code:: python
 
     # sequential
     for image in images:
