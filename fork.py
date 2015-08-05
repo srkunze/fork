@@ -325,4 +325,4 @@ class OpWrapper(object):
         x2 = self.x2
         if hasattr(x2, 'result'):
             x2 = x2.result()
-        return op(x1, x2)
+        return self.op(x1, x2)
