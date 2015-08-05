@@ -87,6 +87,49 @@ Parallelize implicitly?
     create_thumbnail_by_bare_processing_power(image2)
 
 
+Contagious futures?
+-------------------
+
+You feel like debugging is too easy? Go ahead.
+
+**Use with extreme caution**
+
+.. code:: python
+
+    @io_bound
+    @contagious
+    def item():
+        # implementation
+
+    result = 0
+    for item in items:
+        result += fork(item)
+    print(result)
+
+    # or
+
+    @contagious
+    @io_bound_fork
+    def item():
+        # implementation
+
+    result = 0
+    for item in items:
+        result += item()
+    print(result)
+
+    # or
+
+    @io_bound
+    def item():
+        # implementation
+
+    result = 0
+    for item in items:
+        result += fork_contagious(item)
+    print(result)
+
+
 Conclusion
 ----------
 
@@ -103,7 +146,6 @@ Bad
 - weird calling syntax (no syntax support)
 - type(result) == BlockingFuture
 - not working with coroutines (asyncio_) yet
-- future is not contagious yet
 - not working with lambdas due to PickleError
 
 
