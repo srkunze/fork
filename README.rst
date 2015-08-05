@@ -19,8 +19,6 @@ Don't use it.
 How?
 ----
 
-Like this:
-
 .. code:: python
 
     for image in images:
