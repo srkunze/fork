@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name='xfork',
-    version='0.8',
+    version='0.9',
     description='submitting cpu-bound tasks to processes and io-bound tasks to threads',
     author='Sven R. Kunze',
     author_email='srkunze@mail.de',
@@ -13,6 +13,7 @@ setup(
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
     ],
 )
