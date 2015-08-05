@@ -88,10 +88,6 @@ _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
 
 
 def _fork(future_wrapper, callable_, *args, **kwargs):
-    """
-    Submit a callable to another process or thread
-    depending on its io- or cpu-boundness.
-    """
     has_side_effects = getattr(callable_, '__has_side_effects__', False)
     if has_side_effects:
         return callable_(*args, **kwargs)
@@ -106,14 +102,34 @@ def _fork(future_wrapper, callable_, *args, **kwargs):
 
 
 def fork(callable_, *args, **kwargs):
+    """
+    Submit a callable to another process or thread
+    depending on its io- or cpu-boundness.
+    Returns an a future wrapper that acts like the
+    real return value.
+    """
     return _fork(None, callable_, *args, **kwargs)
 
 
 def fork_noncontagious(callable_, *args, **kwargs):
+    """
+    Submit a callable to another process or thread
+    depending on its io- or cpu-boundness.
+    Returns an a future wrapper that acts like the
+    real return value.
+    Ensures noncontagious futures.
+    """
     return _fork(FutureWrapper, callable_, *args, **kwargs)
 
 
 def fork_contagious(callable_, *args, **kwargs):
+    """
+    Submit a callable to another process or thread
+    depending on its io- or cpu-boundness.
+    Returns an a future wrapper that acts like the
+    real return value.
+    Ensures contagious futures.
+    """
     return _fork(ContagiousFutureWrapper, callable_, *args, **kwargs)
 
 
