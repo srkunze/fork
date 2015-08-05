@@ -83,8 +83,8 @@ Parallelize implicitly?
         # implementation
     
     # the following two lines spawn two forks
-    create_thumbnail_by_webservice()
-    create_thumbnail_by_bare_processing_power()
+    create_thumbnail_by_webservice(image1)
+    create_thumbnail_by_bare_processing_power(image2)
 
 
 Conclusion
