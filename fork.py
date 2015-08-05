@@ -401,79 +401,79 @@ class ContagiousFutureWrapper(object):
         return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 + x2, self.__future__, other)
 
     def __sub__(self, other):
-        return self.__future__.result() - other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 - x2, self.__future__, other)
 
     def __mul__(self, other):
-        return self.__future__.result() * other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 * x2, self.__future__, other)
 
     def __truediv__(self, other):
-        return self.__future__.result() / other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 / x2, self.__future__, other)
 
     def __floordiv__(self, other):
-        return self.__future__.result() // other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 // x2, self.__future__, other)
 
     def __mod__(self, other):
-        return self.__future__.result() % other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 % x2, self.__future__, other)
 
     def __divmod__(self, other):
-        return divmod(self.__future__.result(), other)
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: divmod(x1, x2), self.__future__, other)
 
     def __pow__(self, other, modulo=None):
         return pow(self.__future__.result(), other, modulo)
 
     def __lshift__(self, other):
-        return self.__future__.result() << other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 << x2, self.__future__, other)
 
     def __rshift__(self, other):
-        return self.__future__.result() >> other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 >> x2, self.__future__, other)
 
     def __and__(self, other):
-        return self.__future__.result() & other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 & x2, self.__future__, other)
 
     def __xor__(self, other):
-        return self.__future__.result() ^ other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 ^ x2, self.__future__, other)
 
     def __or__(self, other):
-        return self.__future__.result() | other
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 | x2, self.__future__, other)
 
     def __radd__(self, other):
         return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 + x2, other, self.__future__)
 
     def __rsub__(self, other):
-        return other - self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 - x2, other, self.__future__)
 
     def __rmul__(self, other):
-        return other * self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 * x2, other, self.__future__)
 
     def __rtruediv__(self, other):
-        return other / self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 / x2, other, self.__future__)
 
     def __rfloordiv__(self, other):
-        return other // self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 // x2, other, self.__future__)
 
     def __rmod__(self, other):
-        return other % self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 % x2, other, self.__future__)
 
     def __rdivmod__(self, other):
-        return divmod(other, self.__future__.result())
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: divmod(x1, x2), other, self.__future__)
 
     def __rpow__(self, other):
-        return pow(other, self.__future__.result())
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: pow(x1, x2), other, self.__future__)
 
     def __rlshift__(self, other):
-        return other << self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 << x2, other, self.__future__)
 
     def __rrshift__(self, other):
-        return other >> self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 >> x2, other, self.__future__)
 
     def __rand__(self, other):
-        return other & self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 & x2, other, self.__future__)
 
     def __rxor__(self, other):
-        return other ^ self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 ^ x2, other, self.__future__)
 
     def __ror__(self, other):
-        return other | self.__future__.result()
+        return ContagiousOperatorFutureWrapper(lambda x1, x2: x1 | x2, other, self.__future__)
 
     def __neg__(self):
         return -self.__future__.result()
