@@ -70,7 +70,9 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
 Parallelize implicitly?
 -----------------------
 
-**Use with caution; magic involved.**
+If you don't like the fork calling syntax, you can convert certain functions into forks.
+
+**Use with caution**
 
 .. code:: python
 
@@ -90,43 +92,31 @@ Parallelize implicitly?
 Contagious futures?
 -------------------
 
-You feel like debugging is too easy? Go ahead.
+You feel like debugging is too easy, don't you? Go ahead.
 
 **Use with extreme caution**
 
 .. code:: python
 
     @io_bound
-    @contagious
     def item():
         # implementation
 
     result = 0
     for item in items:
-        result += fork(item)
-    print(result)
-
-    # or
-
-    @contagious
-    @io_bound_fork
-    def item():
-        # implementation
-
-    result = 0
-    for item in items:
-        result += item()
+        result += fork_contagious(item) # explicit
     print(result)
 
     # or
 
     @io_bound
+    @contagious
     def item():
         # implementation
 
     result = 0
     for item in items:
-        result += fork_contagious(item)
+        result += fork(item)            # implicit
     print(result)
 
 
