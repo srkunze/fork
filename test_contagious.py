@@ -11,7 +11,7 @@ def fib_fork(n):
 
 @contagious
 @cpu_bound_fork
-def fib_contagious_fork(n):
+def contagious_fib_fork(n):
     return 1 if n <= 1 else fib(n-1) + fib(n-2)
 
 
@@ -54,7 +54,7 @@ def test_cpu_bound_contagious_decorator(n):
     start = time.time()
     par_result = 0
     for i in range(n):
-        par_result += fib_contagious_fork(i)
+        par_result += contagious_fib_fork(i)
     str(par_result)
     end = time.time()
     print('parallel:  ', end-start)
@@ -106,7 +106,7 @@ def test_cpu_bound_noncontagious(n):
     start = time.time()
     par_result = 0
     for i in range(n):
-        par_result += fork_noncontagious(fib_contagious_fork, i)
+        par_result += fork_noncontagious(contagious_fib_fork, i)
     str(par_result)
     end = time.time()
     print('parallel:  ', end-start)

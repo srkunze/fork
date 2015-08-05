@@ -12,12 +12,12 @@ def fib_fork(n):
 
 @io_bound
 def webservice():
-    time.sleep(0.1)
+    time.sleep(0.02)
     return 'result'
 
 @cpu_bound_fork
 def webservice_fork():
-    time.sleep(0.1)
+    time.sleep(0.02)
     return 'result'
 
 
@@ -127,5 +127,5 @@ def test_io_bound_fork(n):
 
 test_cpu_bound(n=30)
 test_cpu_bound_fork(n=30)
-test_io_bound(n=20)
-test_io_bound_fork(n=20)
+test_io_bound(n=30)
+test_io_bound_fork(n=30)
