@@ -27,10 +27,10 @@ Like this:
         create_thumbnail(image)       # original
 
     for image in images:
-        fork(create_thumbnail, image) # parallelized
+        fork(create_thumbnail, image) # parallelized explicitly 
 
     for image in images:
-        create_thumbnail(image)       # *magic* see below
+        create_thumbnail(image)       # parallelized implictly (Caution: Magic) 
 
 
 What about return values?
