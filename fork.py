@@ -6,38 +6,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 __version__ = '0.12'
 __version_info__ = (0, 12)
-__all__ = ['fork', 'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'contagious', 'unsafe', 'UnknownWaitingForError']
-
-
-_pools_of = threading.local()
-_pools_of.processes = ProcessPoolExecutor()
-_pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
-
-
-def fork(callable_, *args, **kwargs):
-    """
-    Submit a callable to another process or thread
-    depending on its io- or cpu-boundness.
-    """
-    has_side_effects = getattr(callable_, '__has_side_effects__', False)
-    if has_side_effects:
-        return callable_(*args, **kwargs)
-    waiting_for = getattr(callable_, '__waiting_for__', 'cpu')
-    future_wrapper = getattr(callable_, '__future_wrapper__', FutureWrapper)
-    if waiting_for == 'cpu':
-        return future_wrapper(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
-    elif waiting_for == 'io':
-        return future_wrapper(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs))
-    raise UnknownWaitingForError(waiting_for)
-
-
-def _safety_wrapper(callable_, *args, **kwargs):
-    _pools_of.processes = ProcessPoolExecutor()
-    _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
-    result = callable_(*args, **kwargs)
-    _pools_of.processes.shutdown()
-    _pools_of.threads.shutdown()
-    return result
+__all__ = [
+    'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'contagious', 'unsafe',
+    'fork', 'fork_contagious', 'fork_noncontagious',
+    'UnknownWaitingForError',
+]
 
 
 def cpu_bound(callable_):
@@ -107,6 +80,50 @@ def unsafe(callable_):
     """
     callable_.__has_side_effects__ = True
     return callable_
+
+
+_pools_of = threading.local()
+_pools_of.processes = ProcessPoolExecutor()
+_pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
+
+
+def _fork(future_wrapper, callable_, *args, **kwargs):
+    """
+    Submit a callable to another process or thread
+    depending on its io- or cpu-boundness.
+    """
+    has_side_effects = getattr(callable_, '__has_side_effects__', False)
+    if has_side_effects:
+        return callable_(*args, **kwargs)
+    waiting_for = getattr(callable_, '__waiting_for__', 'cpu')
+    if not future_wrapper:
+        future_wrapper = getattr(callable_, '__future_wrapper__', FutureWrapper)
+    if waiting_for == 'cpu':
+        return future_wrapper(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
+    elif waiting_for == 'io':
+        return future_wrapper(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs))
+    raise UnknownWaitingForError(waiting_for)
+
+
+def fork(callable_, *args, **kwargs):
+    return _fork(None, callable_, *args, **kwargs)
+
+
+def fork_noncontagious(callable_, *args, **kwargs):
+    return _fork(FutureWrapper, callable_, *args, **kwargs)
+
+
+def fork_contagious(callable_, *args, **kwargs):
+    return _fork(ContagiousFutureWrapper, callable_, *args, **kwargs)
+
+
+def _safety_wrapper(callable_, *args, **kwargs):
+    _pools_of.processes = ProcessPoolExecutor()
+    _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
+    result = callable_(*args, **kwargs)
+    _pools_of.processes.shutdown()
+    _pools_of.threads.shutdown()
+    return result
 
 
 def UnknownWaitingForError(Exception):
