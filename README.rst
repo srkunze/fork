@@ -29,6 +29,9 @@ Like this:
     for image in images:
         fork(create_thumbnail, image) # parallelized
 
+    for image in images:
+        create_thumbnail(image)       # *magic* see below
+
 
 What about return values?
 -------------------------
