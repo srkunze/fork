@@ -1,7 +1,5 @@
-====
-FORK
-====
-
+FORK_
+=====
 Convert a classic sequential program into parallel one.
 
 
@@ -18,6 +16,7 @@ Don't use it.
 How?
 ----
 Like this:
+::
 
     # sequential
     for image in images:
@@ -30,21 +29,23 @@ Like this:
 
 What about return values?
 -------------------------
+::
+
     result = fork(my_func, *args, **kwargs)
 
 
 And what is this result?
 ------------------------
-
 A future that behaves almost exactly as if it were the return value of my_func. That in turn means, as soon as you access the result and it is not ready yet, the main thread blocks.
 
 
 Speaking of threads ...
 -----------------------
-
 and processes? That depends on whether your function is @io_bound or @cpu_bound. Not decorated means @cpu_bound.
 
 If necessary, decorate your functions:
+
+.. code:: python
 
     @io_bound
     def call_remote_webservice():
@@ -60,8 +61,9 @@ If necessary, decorate your functions:
 
 Something else?
 ---------------
-
 Sure. If you don't like the fork calling syntax, try those decorators:
+
+.. code:: python
 
     @io_bound_fork
     def create_thumbnail_by_webservice(image):
@@ -95,4 +97,4 @@ Bad
 - future is not contagious yet
 - not working with lambdas due to PickleError
 
-.. _FORK https://pypi.python.org/pypi/xfork
+.. _FORK: https://pypi.python.org/pypi/xfork
