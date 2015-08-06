@@ -137,8 +137,11 @@ Bad
 
 - weird calling syntax (no syntax support)
 - type(result) == BlockingFuture
-- not working with coroutines (asyncio_) yet
 - not working with lambdas due to PickleError
+- needs fix:
+    - not working with coroutines (asyncio_) yet
+    - still needs some mechanism to wait and to evaluate all contagious results (with statement or simple function)
+    - contagious_result (caller has no control over it; might get deprecated)
 
 
 .. _FORK: https://pypi.python.org/pypi/xfork
