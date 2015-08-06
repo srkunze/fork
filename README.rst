@@ -96,7 +96,7 @@ You feel like debugging is still too easy, don't you? Go ahead with contagious f
 
 **Use with extreme caution.**
 
-<p style="color: red">NOTE: decorator 'contagious' was renamed to 'contagious_result'.</p>
+**NOTE: decorator 'contagious' was renamed to 'contagious_result'.**
 
 .. code:: python
 
