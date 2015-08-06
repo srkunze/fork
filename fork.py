@@ -4,8 +4,8 @@ from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 
 
-__version__ = '0.15'
-__version_info__ = (0, 15)
+__version__ = '0.16'
+__version_info__ = (0, 16)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'contagious_result', 'unsafe',
     'fork', 'fork_contagious', 'fork_noncontagious',
