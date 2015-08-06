@@ -136,9 +136,10 @@ Bad
 ***
 
 - weird calling syntax (no syntax support)
-- type(result) == BlockingFuture
+- type(result) == FutureWrapper
 - not working with lambdas due to PickleError
 - needs fix:
+
     - contagious_result (caller has no control over result; might get deprecated)
     - still needs some mechanism to wait and to evaluate all contagious results (using 'with' or function call)
     - not working with coroutines (asyncio_) yet
