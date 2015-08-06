@@ -85,3 +85,6 @@ fork(cpu_a)
 cpu_a_fork()
 fork(io_a)
 io_a_fork()
+
+fork(fork, fork, fork, fork, fork, cpu_a)
+fork(fork, fork, fork, fork, fork, io_a)
