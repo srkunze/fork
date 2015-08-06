@@ -72,7 +72,7 @@ Parallelize implicitly?
 
 If you don't like the fork calling syntax, you can convert certain functions into forks.
 
-**Use with caution**
+**Use with caution.**
 
 .. code:: python
 
@@ -89,12 +89,12 @@ If you don't like the fork calling syntax, you can convert certain functions int
     create_thumbnail_by_bare_processing_power(image2)
 
 
-Contagious futures?
--------------------
+I feel like debugging is too easy and I still need more performance.
+--------------------------------------------------------------------
 
-You feel like debugging is too easy and you still need more performance? Go ahead.
+Go ahead with contagious futures.
 
-**Use with extreme caution**
+**Use with extreme caution.**
 
 .. code:: python
 
