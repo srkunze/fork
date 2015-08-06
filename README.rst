@@ -98,7 +98,7 @@ You feel like debugging is still too easy, don't you? Go ahead with contagious f
 
 .. raw:: html
 
-    <span style="color: red">NOTE: decorator 'contagious' was renamed to 'contagious_result'.</span>
+    <p style="color: red">NOTE: decorator 'contagious' was renamed to 'contagious_result'.</sppan>
 
 .. code:: python
 
