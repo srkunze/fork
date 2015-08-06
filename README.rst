@@ -96,6 +96,9 @@ You feel like debugging is still too easy, don't you? Go ahead with contagious f
 
 **Use with extreme caution.**
 
+.. raw:: html
+    <span style="color: red">NOTE: decorator 'contagious' was renamed to 'contagious_result'.</span>
+
 .. code:: python
 
     @io_bound
@@ -110,7 +113,7 @@ You feel like debugging is still too easy, don't you? Go ahead with contagious f
     # or
 
     @io_bound # also works with fork decorator
-    @contagious
+    @contagious_result
     def item():
         # implementation
 

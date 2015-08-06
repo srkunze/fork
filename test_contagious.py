@@ -10,11 +10,10 @@ def fib(n):
 def fib_fork(n):
     return 1 if n <= 1 else fib(n-1) + fib(n-2)
 
-@contagious
+@contagious_result
 @cpu_bound_fork
 def contagious_fib_fork(n):
     return 1 if n <= 1 else fib(n-1) + fib(n-2)
-
 
 
 @io_bound
@@ -27,7 +26,7 @@ def webservice_fork():
     time.sleep(0.02)
     return 'result'
 
-@contagious
+@contagious_result
 @io_bound_fork
 def contagious_webservice_fork():
     time.sleep(0.02)

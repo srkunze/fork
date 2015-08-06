@@ -7,7 +7,7 @@ from concurrent.futures import ThreadPoolExecutor
 __version__ = '0.14'
 __version_info__ = (0, 14)
 __all__ = [
-    'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'contagious', 'unsafe',
+    'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'contagious_result', 'unsafe',
     'fork', 'fork_contagious', 'fork_noncontagious',
     'UnknownWaitingForError',
 ]
@@ -66,7 +66,7 @@ def io_bound_fork(callable_):
     return fork_wrapper
 
 
-def contagious(callable_):
+def contagious_result(callable_):
     if getattr(callable_, '__is_fork_wrapper__', False):
         callable_.__wrapped_callable__.__future_wrapper__ = ContagiousFutureWrapper
     else:
