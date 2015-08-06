@@ -46,7 +46,7 @@ def test_cpu_bound(n):
     start = time.time()
     par_result = 0
     for i in range(n):
-        par_result += fib(i)
+        par_result += fib_fork(i)
     str(par_result)
     end = time.time()
     print('parallel:  ', end-start)
@@ -242,7 +242,7 @@ def test_io_bound_noncontagious(n):
 
 
 test_cpu_bound(n=30)
-test_cpu_bound_contagious_decorator(n=30)
+test_cpu_bound_contagious_decorator(n=10)
 test_cpu_bound_contagious_directly(n=30)
 test_cpu_bound_noncontagious(n=30)
 test_io_bound(n=30)

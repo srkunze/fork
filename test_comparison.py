@@ -15,7 +15,7 @@ def webservice():
     time.sleep(0.02)
     return 'result'
 
-@cpu_bound_fork
+@io_bound_fork
 def webservice_fork():
     time.sleep(0.02)
     return 'result'
