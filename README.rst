@@ -89,7 +89,7 @@ If you don't like the fork calling syntax, you can convert certain functions int
     create_thumbnail_by_bare_processing_power(image2)
 
 
-I feel like debugging is too easy and I still need more performance.
+Debugging is too easy and I still need more performance.
 --------------------------------------------------------------------
 
 Go ahead with contagious futures.
