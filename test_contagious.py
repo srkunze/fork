@@ -64,7 +64,7 @@ def test_cpu_bound(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
@@ -90,12 +90,12 @@ def test_cpu_bound_contagious_result_decorator(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_cpu_bound_fork_contagious(n):
@@ -116,12 +116,12 @@ def test_cpu_bound_fork_contagious(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_cpu_bound_fork_noncontagious(n):
@@ -142,12 +142,12 @@ def test_cpu_bound_fork_noncontagious(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_cpu_bound_contagious_context_manager(n):
@@ -169,12 +169,35 @@ def test_cpu_bound_contagious_context_manager(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
+
+
+def test_cpu_bound_contagious_decorator(n):
+    print('##### test_cpu_bound_contagious_decorator #####')
+    start = time.time()
+    seq_result = 0
+    for i in range(n):
+        seq_result += fib(i)
+    str(seq_result)
+    end = time.time()
+    print('sequential:', end-start)
+
+    start = time.time()
+    par_result = calc_fib_sum(n)
+    end = time.time()
+    print('parallel:  ', end-start)
+
+    if seq_result == par_result:
+        print('results are equal')
+    else:
+        print('results are unequal')
+        print('sequential:', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_io_bound(n):
@@ -195,12 +218,12 @@ def test_io_bound(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_io_bound_contagious_result_decorator(n):
@@ -221,12 +244,12 @@ def test_io_bound_contagious_result_decorator(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_io_bound_fork_contagious(n):
@@ -247,12 +270,12 @@ def test_io_bound_fork_contagious(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_io_bound_fork_noncontagious(n):
@@ -273,12 +296,12 @@ def test_io_bound_fork_noncontagious(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 def test_io_bound_contagious_context_manager(n):
@@ -300,12 +323,12 @@ def test_io_bound_contagious_context_manager(n):
     end = time.time()
     print('parallel:  ', end-start)
 
-    if seq_result == seq_result:
+    if seq_result == par_result:
         print('results are equal')
     else:
         print('results are unequal')
         print('sequential:', seq_result)
-        print('parallel:  ', seq_result)
+        print('parallel:  ', par_result)
 
 
 
