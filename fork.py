@@ -1,3 +1,4 @@
+from contextlib import ContextDecorator
 from functools import wraps
 import threading
 from concurrent.futures import ProcessPoolExecutor
@@ -9,6 +10,7 @@ __version_info__ = (0, 16)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'contagious_result', 'unsafe',
     'fork', 'fork_contagious', 'fork_noncontagious',
+    'contagious',
     'UnknownWaitingForError',
 ]
 
@@ -66,6 +68,27 @@ def io_bound_fork(callable_):
     return fork_wrapper
 
 
+_settings = threading.local()
+
+
+class contagious(ContextDecorator):
+
+    def __call__(self, func):
+        @wraps(func)
+        def inner(*args, **kwargs):
+            with self.__class__():
+                return func(*args, **kwargs)
+        return inner
+
+    def __enter__(self):
+        _settings.is_contagious = True
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        _settings.is_contagious = False
+        return bool(exc_type)
+contagious=contagious()
+
+
 def contagious_result(callable_):
     if getattr(callable_, '__is_fork_wrapper__', False):
         callable_.__wrapped_callable__.__future_wrapper__ = ContagiousFutureWrapper
@@ -92,8 +115,6 @@ def _fork(future_wrapper, callable_, *args, **kwargs):
     if has_side_effects:
         return callable_(*args, **kwargs)
     waiting_for = getattr(callable_, '__waiting_for__', 'cpu')
-    if not future_wrapper:
-        future_wrapper = getattr(callable_, '__future_wrapper__', FutureWrapper)
     if waiting_for == 'cpu':
         return future_wrapper(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
     elif waiting_for == 'io':
@@ -108,7 +129,10 @@ def fork(callable_, *args, **kwargs):
     Returns an a future wrapper that acts like the
     real return value.
     """
-    return _fork(None, callable_, *args, **kwargs)
+    if getattr(_settings, 'is_contagious', False):
+        return _fork(ContagiousFutureWrapper, callable_, *args, **kwargs)
+    future_wrapper = getattr(callable_, '__future_wrapper__', FutureWrapper)
+    return  _fork(future_wrapper, callable_, *args, **kwargs)
 
 
 def fork_noncontagious(callable_, *args, **kwargs):
@@ -145,6 +169,9 @@ def _safety_wrapper(callable_, *args, **kwargs):
 def UnknownWaitingForError(Exception):
 
     pass
+
+
+
 
 
 class FutureWrapper(object):

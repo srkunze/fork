@@ -15,6 +15,12 @@ def fib_fork(n):
 def contagious_fib_fork(n):
     return 1 if n <= 1 else fib(n-1) + fib(n-2)
 
+@contagious
+def calc_fib_sum(n):
+    par_result = 0
+    for i in range(n):
+        par_result += fib_fork(i)
+    return par_result
 
 @io_bound
 def webservice():
@@ -31,6 +37,13 @@ def webservice_fork():
 def contagious_webservice_fork():
     time.sleep(0.02)
     return 'result'
+
+@contagious
+def calc_webservice_sum(n):
+    par_result = 0
+    for i in range(n):
+        par_result += webservice_fork()
+    return par_result
 
 
 def test_cpu_bound(n):
@@ -59,8 +72,8 @@ def test_cpu_bound(n):
         print('parallel:  ', seq_result)
 
 
-def test_cpu_bound_contagious_decorator(n):
-    print('##### test_cpu_bound_contagious_decorator #####')
+def test_cpu_bound_contagious_result_decorator(n):
+    print('##### test_cpu_bound_contagious_result_decorator #####')
     start = time.time()
     seq_result = 0
     for i in range(n):
@@ -85,8 +98,8 @@ def test_cpu_bound_contagious_decorator(n):
         print('parallel:  ', seq_result)
 
 
-def test_cpu_bound_contagious_directly(n):
-    print('##### test_cpu_bound_contagious_directly #####')
+def test_cpu_bound_fork_contagious(n):
+    print('##### test_cpu_bound_fork_contagious #####')
     start = time.time()
     seq_result = 0
     for i in range(n):
@@ -111,8 +124,8 @@ def test_cpu_bound_contagious_directly(n):
         print('parallel:  ', seq_result)
 
 
-def test_cpu_bound_noncontagious(n):
-    print('##### test_cpu_bound_noncontagious #####')
+def test_cpu_bound_fork_noncontagious(n):
+    print('##### test_cpu_bound_fork_noncontagious #####')
     start = time.time()
     seq_result = 0
     for i in range(n):
@@ -126,6 +139,33 @@ def test_cpu_bound_noncontagious(n):
     for i in range(n):
         par_result += fork_noncontagious(contagious_fib_fork, i)
     str(par_result)
+    end = time.time()
+    print('parallel:  ', end-start)
+
+    if seq_result == seq_result:
+        print('results are equal')
+    else:
+        print('results are unequal')
+        print('sequential:', seq_result)
+        print('parallel:  ', seq_result)
+
+
+def test_cpu_bound_contagious_context_manager(n):
+    print('##### test_cpu_bound_contagious_context_manager #####')
+    start = time.time()
+    seq_result = 0
+    for i in range(n):
+        seq_result += fib(i)
+    str(seq_result)
+    end = time.time()
+    print('sequential:', end-start)
+
+    start = time.time()
+    with contagious:
+        par_result = 0
+        for i in range(n):
+            par_result += fib_fork(i)
+        str(par_result)
     end = time.time()
     print('parallel:  ', end-start)
 
@@ -163,8 +203,8 @@ def test_io_bound(n):
         print('parallel:  ', seq_result)
 
 
-def test_io_bound_contagious_decorator(n):
-    print('##### test_io_bound_contagious_decorator #####')
+def test_io_bound_contagious_result_decorator(n):
+    print('##### test_io_bound_contagious_result_decorator #####')
     start = time.time()
     seq_result = ''
     for i in range(n):
@@ -189,8 +229,8 @@ def test_io_bound_contagious_decorator(n):
         print('parallel:  ', seq_result)
 
 
-def test_io_bound_contagious_directly(n):
-    print('##### test_io_bound_contagious_directly #####')
+def test_io_bound_fork_contagious(n):
+    print('##### test_io_bound_fork_contagious #####')
     start = time.time()
     seq_result = ''
     for i in range(n):
@@ -215,8 +255,8 @@ def test_io_bound_contagious_directly(n):
         print('parallel:  ', seq_result)
 
 
-def test_io_bound_noncontagious(n):
-    print('##### test_io_bound_noncontagious #####')
+def test_io_bound_fork_noncontagious(n):
+    print('##### test_io_bound_fork_noncontagious #####')
     start = time.time()
     seq_result = ''
     for i in range(n):
@@ -241,11 +281,41 @@ def test_io_bound_noncontagious(n):
         print('parallel:  ', seq_result)
 
 
+def test_io_bound_contagious_context_manager(n):
+    print('##### test_io_bound_contagious_context_manager #####')
+    start = time.time()
+    seq_result = 0
+    for i in range(n):
+        seq_result += fib(i)
+    str(seq_result)
+    end = time.time()
+    print('sequential:', end-start)
+
+    start = time.time()
+    with contagious:
+        par_result = 0
+        for i in range(n):
+            par_result += fib_fork(i)
+        str(par_result)
+    end = time.time()
+    print('parallel:  ', end-start)
+
+    if seq_result == seq_result:
+        print('results are equal')
+    else:
+        print('results are unequal')
+        print('sequential:', seq_result)
+        print('parallel:  ', seq_result)
+
+
+
 test_cpu_bound(n=30)
-test_cpu_bound_contagious_decorator(n=10)
-test_cpu_bound_contagious_directly(n=30)
-test_cpu_bound_noncontagious(n=30)
+test_cpu_bound_contagious_result_decorator(n=30)
+test_cpu_bound_fork_contagious(n=30)
+test_cpu_bound_fork_noncontagious(n=30)
+test_cpu_bound_contagious_context_manager(30)
 test_io_bound(n=30)
-test_io_bound_contagious_decorator(n=30)
-test_io_bound_contagious_directly(n=30)
-test_io_bound_noncontagious(n=30)
+test_io_bound_contagious_result_decorator(n=30)
+test_io_bound_fork_contagious(n=30)
+test_io_bound_fork_noncontagious(n=30)
+test_io_bound_contagious_context_manager(30)
