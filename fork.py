@@ -71,7 +71,7 @@ def io_bound_fork(callable_):
 _settings = threading.local()
 
 
-class contagious(ContextDecorator):
+class contagious(object):
 
     def __call__(self, func):
         @wraps(func)
