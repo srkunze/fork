@@ -12,7 +12,7 @@ __version_info__ = (0, 20)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
     'fork',
-    'UnknownWaitingForError', 'ResultEvaluationError',
+    'UnknownWaitingForError',
 ]
 
 
@@ -105,18 +105,13 @@ def _safety_wrapper(callable_, *args, **kwargs):
     try:
         return callable_(*args, **kwargs), None
     except BaseException as exc:
-        return None, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc)
+        return None, (type(exc), traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
     finally:
         _pools_of.processes.shutdown()
         _pools_of.threads.shutdown()
 
 
 class UnknownWaitingForError(Exception):
-
-    pass
-
-
-class ResultEvaluationError(Exception):
 
     pass
 
@@ -354,7 +349,7 @@ class OperatorFuture(object):
             self._exception = exception
             self._cached = True
         if self._exception:
-            return None, traceback.format_exception_only(type(self._exception), self._exception)
+            return None, (type(self._exception), traceback.format_exception_only(type(self._exception), self._exception))
         return self._result, None
 
     def evaluate(self, node):
@@ -374,8 +369,8 @@ class OperatorFuture(object):
 
 
 def result_with_proper_traceback(future):
-    result, exc_info = future.__original_result__()
-    if exc_info is not None:
-        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + exc_info).split('\n'))
-        raise ResultEvaluationError(original_traceback)
+    result, traceback_info = future.__original_result__()
+    if traceback_info is not None:
+        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + traceback_info[1]).split('\n'))
+        raise traceback_info[0](original_traceback)
     return result
