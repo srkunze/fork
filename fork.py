@@ -358,7 +358,7 @@ class OperatorFuture(object):
                 self._exception = exc
             self._cached = True
         if self._exception:
-            return  None, traceback.format_exception_only(type(self._exception), self._exception)
+            return None, traceback.format_exception_only(type(self._exception), self._exception)
         else:
             return self._result, None
 
