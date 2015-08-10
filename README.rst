@@ -115,6 +115,7 @@ Bad
 - not working with lambdas due to PickleError
 - needs fix:
 
+  - "maximum recursion depth exceeded" due to encapsulating all operations into proxies
   - not working with coroutines (asyncio_) yet
 
 
