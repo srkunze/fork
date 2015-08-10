@@ -346,19 +346,19 @@ class OperatorFuture(object):
 
     def result(self):
         if not self._cached:
+            x1 = self.x1
+            if hasattr(x1, 'result'):
+                x1 = x1.result()
+            x2 = self.x2
+            if hasattr(x2, 'result'):
+                x2 = x2.result()
             try:
-                x1 = self.x1
-                if hasattr(x1, 'result'):
-                    x1 = x1.result()
-                x2 = self.x2
-                if hasattr(x2, 'result'):
-                    x2 = x2.result()
                 self._result = self.op(x1, x2)
-            except BaseException as e:
-                self._exception = e
+            except BaseException as exc:
+                self._exception = exc
             self._cached = True
         if self._exception:
-            return  None, []
+            return  None, traceback.format_exception_only(type(self._exception), self._exception)
         else:
             return self._result, None
 
