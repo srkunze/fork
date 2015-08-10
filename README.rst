@@ -42,7 +42,11 @@ What about return values?
 And what is this result?
 ------------------------
 
-A future that behaves almost exactly as if it were the return value of my_func. That in turn means, as soon as you access the result and it is not ready yet, the main thread blocks.
+A result proxy that behaves almost exactly as if it were the return value of my_func.
+That in turn means, as soon as you access the result and it is not ready yet, the main thread blocks.
+
+Furthermore, result proxies are contagious, i.e. evaluation are delayed until they are really needed.
+Don't panic; in case of an error, you will receive the same traceback that you would see in the sequential case.
 
 
 Speaking of threads ...
@@ -87,39 +91,6 @@ If you don't like the fork calling syntax, you can convert certain functions int
     # the following two lines spawn two forks
     create_thumbnail_by_webservice(image1)
     create_thumbnail_by_bare_processing_power(image2)
-
-
-I still need more performance.
-------------------------------
-
-You feel like debugging is still too easy, don't you? Go ahead with contagious futures.
-
-**Use with extreme caution.**
-
-**NOTE: decorator 'contagious' was renamed to 'contagious_result'.**
-
-.. code:: python
-
-    @io_bound
-    def item():
-        # implementation
-
-    result = 0
-    for item in items:
-        result += fork_contagious(item) # explicit
-    print(result)
-
-    # or
-
-    @io_bound # also works with fork decorator
-    @contagious_result
-    def item():
-        # implementation
-
-    result = 0
-    for item in items:
-        result += fork(item)            # implicit
-    print(result)
 
 
 Conclusion
