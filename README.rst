@@ -39,7 +39,8 @@ What about return values?
     result = fork(my_func, *args, **kwargs)
 
 
-That is a proxy object that behaves almost exactly as if it were the real return value of my_func:
+That is a proxy object that behaves almost exactly as if it were the real return value of my_func.
+
 Furthermore, result proxies evaluate lazily, e.g. operators (like +, - etc.) evaluate until really needed.
 
 
