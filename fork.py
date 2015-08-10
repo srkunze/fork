@@ -3,8 +3,8 @@ import threading
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 
-__version__ = '0.16'
-__version_info__ = (0, 16)
+__version__ = '0.17'
+__version_info__ = (0, 17)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
     'fork',
