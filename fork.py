@@ -105,8 +105,8 @@ def _safety_wrapper(callable_, *args, **kwargs):
     result = None
     try:
         result = callable_(*args, **kwargs)
-    except:
-        tb = traceback.format_tb(sys.exc_info()[2])[1:]
+    except BaseException as exc:
+        tb = traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc)
     _pools_of.processes.shutdown()
     _pools_of.threads.shutdown()
     return result, tb
