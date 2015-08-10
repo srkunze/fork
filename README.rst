@@ -42,12 +42,16 @@ What about return values?
 And what is this result?
 ------------------------
 
-A proxy object that behaves almost exactly as if it were the real return value of my_func.
-So, as soon as you access the result and it is not ready yet, the main thread blocks.
-
+A proxy object that behaves almost exactly as if it were the real return value of my_func:
 Furthermore, result proxies are contagious, i.e. operator (+, - etc.) evaluation is delayed until really needed.
 
-Don't panic; in case of an error, you will receive the same traceback that you would see in the sequential case.
+
+What about exceptions?
+----------------------
+
+Relax.
+
+In case of an error, you will receive the normal traceback that you would see in the sequential case.
 
 
 Speaking of threads ...
