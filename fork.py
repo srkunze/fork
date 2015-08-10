@@ -9,8 +9,8 @@ from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
 _debug = False
 
-__version__ = '0.21'
-__version_info__ = (0, 21)
+__version__ = '0.22'
+__version_info__ = (0, 22)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
     'fork',

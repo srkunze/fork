@@ -31,25 +31,24 @@ How?
         create_thumbnail(image)       # parallelized implicitly (read below)
 
 
-What about return values?
--------------------------
+Does it work with return values?
+--------------------------------
+
+Sure:
 
 .. code:: python
 
     result = fork(my_func, *args, **kwargs)
 
+It's a proxy object that behaves almost exactly like the real return value of my_func.
 
-That is a proxy object that behaves almost exactly as if it were the real return value of my_func.
-
-Furthermore, result proxies evaluate lazily, e.g. operators (like +, - etc.) evaluate until really needed.
+Furthermore, it evaluates only if needed; also in combination with operators (like +, - etc.).
 
 
 What about exceptions?
 ----------------------
 
-Relax.
-
-In case of an error, you will receive the normal traceback that you would see in the sequential case.
+Its original (sequential) traceback is preserved. That should make debugging easier.
 
 
 Speaking of threads ...
