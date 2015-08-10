@@ -12,12 +12,12 @@ def fib_fork(n):
 
 @io_bound
 def webservice():
-    time.sleep(0.02)
+    time.sleep(0.01)
     return 'result'
 
 @io_bound_fork
 def webservice_fork():
-    time.sleep(0.02)
+    time.sleep(0.01)
     return 'result'
 
 
@@ -85,7 +85,7 @@ def test_cpu_bound_fork_contagious(n):
 
     start = time.time()
     par_results = 0
-    for i in [2]*n:
+    for i in [1]*n:
         par_results += fib_fork(i)
     str(par_results)
     end = time.time()
@@ -177,9 +177,9 @@ def test_io_bound_fork_contagious(n):
         print('parallel:  ', par_results)
 
 
-#test_cpu_bound(n=30)
-#test_cpu_bound_fork(n=30)
-test_cpu_bound_fork_contagious(n=3)
-#test_io_bound(n=30)
-#test_io_bound_fork(n=30)
-#test_io_bound_fork_contagious(n=30)
+test_cpu_bound(n=30)
+test_cpu_bound_fork(n=30)
+test_cpu_bound_fork_contagious(n=30)
+test_io_bound(n=30)
+test_io_bound_fork(n=30)
+test_io_bound_fork_contagious(n=30)

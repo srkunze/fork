@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sys
 import types
 import traceback
@@ -10,7 +12,7 @@ __version_info__ = (0, 20)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
     'fork',
-    'UnknownWaitingForError',
+    'UnknownWaitingForError', 'ResultEvaluationError',
 ]
 
 
@@ -38,15 +40,14 @@ def cpu_bound_fork(callable_):
     cpu-bound and safe for running off the MainThread.
     """
     callable_ = cpu_bound(callable_)
+    callable_.__stack_frames_to_pop_off__ = 3
 
     @wraps(callable_)
     def fork_wrapper(*args, **kwargs):
         return fork(callable_, *args, **kwargs)
-    fork_wrapper.__is_fork_wrapper__ = True
-    fork_wrapper.__wrapped_callable__ = callable_
 
     import sys
-    new_name = '__decorated_{name}__'.format(name=callable_.__name__)
+    new_name = '__decorated_cpu_bound_function_{name}__'.format(name=callable_.__name__)
     callable_.__name__ = new_name
     setattr(sys.modules[callable_.__module__], new_name, callable_)
 
@@ -59,11 +60,11 @@ def io_bound_fork(callable_):
     io-bound and safe for running off the MainThread.
     """
     callable_ = io_bound(callable_)
+    callable_.__stack_frames_to_pop_off__ = 3
+
     @wraps(callable_)
     def fork_wrapper(*args, **kwargs):
         return fork(callable_, *args, **kwargs)
-    fork_wrapper.__is_fork_wrapper__ = True
-    fork_wrapper.__wrapped_callable__ = callable_
     return fork_wrapper
 
 
@@ -90,25 +91,24 @@ def fork(callable_, *args, **kwargs):
     if has_side_effects:
         return callable_(*args, **kwargs)
     waiting_for = getattr(callable_, '__waiting_for__', 'cpu')
+    stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 2)
     if waiting_for == 'cpu':
-        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
+        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     elif waiting_for == 'io':
-        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs))
+        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     raise UnknownWaitingForError(waiting_for)
 
 
 def _safety_wrapper(callable_, *args, **kwargs):
     _pools_of.processes = ProcessPoolExecutor()
     _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
-    tb = None
-    result = None
     try:
-        result = callable_(*args, **kwargs)
+        return callable_(*args, **kwargs), None
     except BaseException as exc:
-        tb = traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc)
-    _pools_of.processes.shutdown()
-    _pools_of.threads.shutdown()
-    return result, tb
+        return None, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc)
+    finally:
+        _pools_of.processes.shutdown()
+        _pools_of.threads.shutdown()
 
 
 class UnknownWaitingForError(Exception):
@@ -123,8 +123,8 @@ class ResultEvaluationError(Exception):
 
 class ResultProxy(object):
 
-    def __init__(self, future):
-        future.__current_frame__ = traceback.format_stack()[:-3]
+    def __init__(self, future, stack_frames_to_pop_off=2):
+        future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off if stack_frames_to_pop_off is not None else None)]
         future.__original_result__ = future.result
         future.result = types.MethodType(result_with_proper_traceback, future)
         self.__future__ = future
@@ -205,82 +205,82 @@ class ResultProxy(object):
         return item in self.__future__.result()
 
     def __add__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 + x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 + x2, self.__future__, other))
 
     def __sub__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 - x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 - x2, self.__future__, other))
 
     def __mul__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 * x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 * x2, self.__future__, other))
 
     def __truediv__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 / x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 / x2, self.__future__, other))
 
     def __floordiv__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 // x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 // x2, self.__future__, other))
 
     def __mod__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 % x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 % x2, self.__future__, other))
 
     def __divmod__(self, other):
-        return OperatorProxy(lambda x1, x2: divmod(x1, x2), self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: divmod(x1, x2), self.__future__, other))
 
     def __pow__(self, other, modulo=None):
         return pow(self.__future__.result(), other, modulo)
 
     def __lshift__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 << x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 << x2, self.__future__, other))
 
     def __rshift__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 >> x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 >> x2, self.__future__, other))
 
     def __and__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 & x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 & x2, self.__future__, other))
 
     def __xor__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 ^ x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 ^ x2, self.__future__, other))
 
     def __or__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 | x2, self.__future__, other)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 | x2, self.__future__, other))
 
     def __radd__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 + x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 + x2, other, self.__future__))
 
     def __rsub__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 - x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 - x2, other, self.__future__))
 
     def __rmul__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 * x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 * x2, other, self.__future__))
 
     def __rtruediv__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 / x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 / x2, other, self.__future__))
 
     def __rfloordiv__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 // x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 // x2, other, self.__future__))
 
     def __rmod__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 % x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 % x2, other, self.__future__))
 
     def __rdivmod__(self, other):
-        return OperatorProxy(lambda x1, x2: divmod(x1, x2), other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: divmod(x1, x2), other, self.__future__))
 
     def __rpow__(self, other):
-        return OperatorProxy(lambda x1, x2: pow(x1, x2), other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: pow(x1, x2), other, self.__future__))
 
     def __rlshift__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 << x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 << x2, other, self.__future__))
 
     def __rrshift__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 >> x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 >> x2, other, self.__future__))
 
     def __rand__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 & x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 & x2, other, self.__future__))
 
     def __rxor__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 ^ x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 ^ x2, other, self.__future__))
 
     def __ror__(self, other):
-        return OperatorProxy(lambda x1, x2: x1 | x2, other, self.__future__)
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 | x2, other, self.__future__))
 
     def __neg__(self):
         return -self.__future__.result()
@@ -327,12 +327,6 @@ class ResultProxy(object):
         return self.__future__.result().__getattribute__(name)
 
 
-class OperatorProxy(ResultProxy):
-
-    def __init__(self, op, x1, x2):
-        super(OperatorProxy, self).__init__(OperatorFuture(op, x1, x2))
-
-
 class OperatorFuture(object):
 
     def __init__(self, op, x1, x2):
@@ -340,37 +334,48 @@ class OperatorFuture(object):
         self.x1 = x1
         self.x2 = x2
         self._cached = False
-        self._result = None
-        self._exception = None
 
     def result(self):
         if not self._cached:
-            stack = [self]
+            stack = [self.evaluate(self)]
+            result = None
+            exception = None
             while stack:
-                current = stack[-1]
-                if isinstance(current, OperatorFuture):
-                    stack.append(current.x1)
-                    stack.append(current.x2)
-                elif isinstance(current, ResultProxy) and not isinstance(current, OperatorProxy):
-                    stack[-1] = current.__future__.result()
-                else:
-                    x2 = stack.pop()
-                    op = stack.pop()
-                    try:
-                        stack[-1]._result = op.op(current, x2)
-                    except BaseException as exc:
-                        stack[-1]._exception = exc
-
+                try:
+                    node = stack[-1].send(result)
+                    stack.append(self.evaluate(node))
+                    result = None
+                except StopIteration as exc:
+                    stack.pop()
+                    result, exception = exc.value
+                if exception:
+                    break
+            self._result = result
+            self._exception = exception
             self._cached = True
         if self._exception:
             return None, traceback.format_exception_only(type(self._exception), self._exception)
-        else:
-            return self._result, None
+        return self._result, None
+
+    def evaluate(self, node):
+        if type(node) == ResultProxy:
+            result = yield node.__future__
+            raise StopIteration((result, None))
+        elif type(node) == Future:
+            raise StopIteration((node.result(), None))
+        elif type(node) == OperatorFuture:
+            x1 = yield node.x1
+            x2 = yield node.x2
+            try:
+                raise StopIteration((node.op(x1, x2), None))
+            except BaseException as exc:
+                raise StopIteration((None, exc))
+        raise StopIteration((node, None))
 
 
 def result_with_proper_traceback(future):
-    res, exc_info = future.__original_result__()
+    result, exc_info = future.__original_result__()
     if exc_info is not None:
-        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_frame__ + exc_info).split('\n'))
+        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + exc_info).split('\n'))
         raise ResultEvaluationError(original_traceback)
-    return res
+    return result
