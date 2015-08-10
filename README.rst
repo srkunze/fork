@@ -39,10 +39,7 @@ What about return values?
     result = fork(my_func, *args, **kwargs)
 
 
-And what is this result?
-------------------------
-
-A proxy object that behaves almost exactly as if it were the real return value of my_func:
+That is a proxy object that behaves almost exactly as if it were the real return value of my_func:
 Furthermore, result proxies are contagious, i.e. operator (+, - etc.) evaluation is delayed until really needed.
 
 
@@ -105,6 +102,8 @@ Good
 ****
 
 - easy way back and forth (from sequential to parallel and vice versa)
+- results evaluate lazily
+- tracebacks are preserved
 - cascading possible (thread-safe)
 - compatible with Python 2 and 3
 
