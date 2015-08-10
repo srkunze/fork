@@ -111,7 +111,7 @@ Bad
 ***
 
 - weird calling syntax (no syntax support)
-- type(result) == ProxyResult
+- type(result) == ResultProxy
 - not working with lambdas due to PickleError
 - needs fix:
 
