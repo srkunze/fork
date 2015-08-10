@@ -77,7 +77,7 @@ def test_cpu_bound_fork_contagious(n):
     print('##### test_cpu_bound_fork_contagious #####')
     start = time.time()
     seq_results = 0
-    for i in range(n):
+    for i in [2]*n:
         seq_results += fib(i)
     str(seq_results)
     end = time.time()
@@ -85,7 +85,7 @@ def test_cpu_bound_fork_contagious(n):
 
     start = time.time()
     par_results = 0
-    for i in range(n):
+    for i in [2]*n:
         par_results += fib_fork(i)
     str(par_results)
     end = time.time()
@@ -177,9 +177,9 @@ def test_io_bound_fork_contagious(n):
         print('parallel:  ', par_results)
 
 
-test_cpu_bound(n=30)
-test_cpu_bound_fork(n=30)
-test_cpu_bound_fork_contagious(n=30)
-test_io_bound(n=30)
-test_io_bound_fork(n=30)
-test_io_bound_fork_contagious(n=30)
+#test_cpu_bound(n=30)
+#test_cpu_bound_fork(n=30)
+test_cpu_bound_fork_contagious(n=3)
+#test_io_bound(n=30)
+#test_io_bound_fork(n=30)
+#test_io_bound_fork_contagious(n=30)

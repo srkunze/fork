@@ -3,8 +3,7 @@ import types
 import traceback
 from functools import wraps
 import threading
-from concurrent.futures import ProcessPoolExecutor
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
 __version__ = '0.20'
 __version_info__ = (0, 20)
@@ -346,16 +345,22 @@ class OperatorFuture(object):
 
     def result(self):
         if not self._cached:
-            x1 = self.x1
-            if hasattr(x1, 'result'):
-                x1 = x1.result()
-            x2 = self.x2
-            if hasattr(x2, 'result'):
-                x2 = x2.result()
-            try:
-                self._result = self.op(x1, x2)
-            except BaseException as exc:
-                self._exception = exc
+            stack = [self]
+            while stack:
+                current = stack[-1]
+                if isinstance(current, OperatorFuture):
+                    stack.append(current.x1)
+                    stack.append(current.x2)
+                elif isinstance(current, ResultProxy) and not isinstance(current, OperatorProxy):
+                    stack[-1] = current.__future__.result()
+                else:
+                    x2 = stack.pop()
+                    op = stack.pop()
+                    try:
+                        stack[-1]._result = op.op(current, x2)
+                    except BaseException as exc:
+                        stack[-1]._exception = exc
+
             self._cached = True
         if self._exception:
             return None, traceback.format_exception_only(type(self._exception), self._exception)
