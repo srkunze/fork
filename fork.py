@@ -80,7 +80,7 @@ def unsafe(callable_):
 
 _pools_of = threading.local()
 _pools_of.processes = ProcessPoolExecutor()
-_pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
+_pools_of.threads = ThreadPoolExecutor(2 * _pools_of.processes._max_workers)
 
 
 def fork(callable_, *args, **kwargs):
@@ -103,7 +103,7 @@ def fork(callable_, *args, **kwargs):
 
 def _safety_wrapper(callable_, *args, **kwargs):
     _pools_of.processes = ProcessPoolExecutor()
-    _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
+    _pools_of.threads = ThreadPoolExecutor(2 * _pools_of.processes._max_workers)
     try:
         return callable_(*args, **kwargs)
     except BaseException as exc:
