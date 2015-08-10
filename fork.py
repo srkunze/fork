@@ -1,9 +1,12 @@
-from contextlib import ContextDecorator
 from functools import wraps
 import threading
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
-
+import traceback
+import types
+from tblib import pickling_support
+pickling_support.install()
+import pickle, sys
 
 __version__ = '0.16'
 __version_info__ = (0, 16)
@@ -86,7 +89,8 @@ class contagious(object):
     def __exit__(self, exc_type, exc_val, exc_tb):
         _settings.is_contagious = False
         return bool(exc_type)
-contagious=contagious()
+
+contagious = contagious()
 
 
 def contagious_result(callable_):
@@ -160,10 +164,15 @@ def fork_contagious(callable_, *args, **kwargs):
 def _safety_wrapper(callable_, *args, **kwargs):
     _pools_of.processes = ProcessPoolExecutor()
     _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
-    result = callable_(*args, **kwargs)
+    tb = None
+    result = None
+    try:
+        result = callable_(*args, **kwargs)
+    except:
+        tb = traceback.format_tb(sys.exc_info()[2])[1:]
     _pools_of.processes.shutdown()
     _pools_of.threads.shutdown()
-    return result
+    return result, tb
 
 
 def UnknownWaitingForError(Exception):
@@ -171,13 +180,25 @@ def UnknownWaitingForError(Exception):
     pass
 
 
+class ResultEvaluationError(Exception):
 
+    pass
 
 
 class FutureWrapper(object):
     
     def __init__(self, future):
         self.__future__ = future
+        import traceback
+        self.__future__.current_frame = traceback.format_stack()[:-4]
+        def result(self):
+            res, exc_info = self.old_result()
+            if exc_info:
+                original_traceback = ''.join(['\n\n\nOriginal Traceback (most recent call last):\n'] + self.current_frame + exc_info)
+                raise ResultEvaluationError(original_traceback)
+            return res
+        future.old_result = future.result
+        future.result = types.MethodType(result, future)
 
     def __repr__(self):
         return repr(self.__future__.result())
