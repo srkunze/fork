@@ -8,9 +8,6 @@ def fib(n):
 
 @cpu_bound_fork
 def fib_fork(n):
-    fff(n)
-
-def fff(n):
     return 1 if n <= 1 else fib(n-1) + fib(n-2)
 
 @io_bound
@@ -128,7 +125,7 @@ def test_io_bound_fork(n):
         print('parallel:  ', par_results)
 
 
-test_cpu_bound(n=10)
-test_cpu_bound_fork(n=1)
+test_cpu_bound(n=30)
+test_cpu_bound_fork(n=30)
 test_io_bound(n=30)
 test_io_bound_fork(n=30)
