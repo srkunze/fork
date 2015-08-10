@@ -4,9 +4,6 @@ from fork import *
 
 @cpu_bound_fork
 def fib_fork(n):
-    r()
-
-def r():
     raise RuntimeError('error')
 
 

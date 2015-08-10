@@ -45,7 +45,7 @@ And what is this result?
 A result proxy that behaves almost exactly as if it were the return value of my_func.
 That in turn means, as soon as you access the result and it is not ready yet, the main thread blocks.
 
-Furthermore, result proxies are contagious, i.e. evaluation are delayed until they are really needed.
+Furthermore, result proxies are contagious, i.e. evaluation is delayed until really needed.
 Don't panic; in case of an error, you will receive the same traceback that you would see in the sequential case.
 
 
@@ -111,8 +111,6 @@ Bad
 - not working with lambdas due to PickleError
 - needs fix:
 
-  - contagious_result (caller has no control over result; might get deprecated)
-  - still needs some mechanism to wait and to evaluate all contagious results (using 'with' or function call)
   - not working with coroutines (asyncio_) yet
 
 
