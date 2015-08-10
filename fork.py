@@ -338,7 +338,7 @@ class ResultProxy(object):
 class OperatorProxy(ResultProxy):
 
     def __init__(self, op, x1, x2):
-        self.__future__ = OperatorFuture(op, x1, x2)
+        super(OperatorProxy, self).__init__(OperatorFuture(op, x1, x2))
 
 
 class OperatorFuture(object):
