@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import traceback
 import time
 from fork import *
 
@@ -18,18 +19,16 @@ def test_cpu_bound_exception():
     try:
         x = fib_fork(8)
         print(x)
-    except Exception as exc:
-        import traceback
-        traceback.print_exc(exc)
+    except:
+        traceback.print_exc()
 
 
 def test_io_bound_exception():
     print('##### test_io_bound_exception #####')
     try:
         print(webservice_fork())
-    except Exception as exc:
-        import traceback
-        traceback.print_exc(exc)
+    except:
+        traceback.print_exc()
 
 
 test_cpu_bound_exception()

@@ -1,3 +1,6 @@
+import sys
+import types
+import traceback
 from functools import wraps
 import threading
 from concurrent.futures import ProcessPoolExecutor
@@ -103,15 +106,13 @@ def _safety_wrapper(callable_, *args, **kwargs):
     try:
         result = callable_(*args, **kwargs)
     except:
-        import sys
-        import traceback
         tb = traceback.format_tb(sys.exc_info()[2])[1:]
     _pools_of.processes.shutdown()
     _pools_of.threads.shutdown()
     return result, tb
 
 
-def UnknownWaitingForError(Exception):
+class UnknownWaitingForError(Exception):
 
     pass
 
@@ -124,18 +125,10 @@ class ResultEvaluationError(Exception):
 class ResultProxy(object):
 
     def __init__(self, future):
-        self.__future__ = future
-        import traceback
-        self.__future__.current_frame = traceback.format_stack()[:-3]
-        def result(self):
-            res, exc_info = self.old_result()
-            if exc_info:
-                original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + self.current_frame + exc_info).split('\n'))
-                raise ResultEvaluationError(original_traceback)
-            return res
-        future.old_result = future.result
-        import types
+        future.__current_frame__ = traceback.format_stack()[:-3]
+        future.__original_result__ = future.result
         future.result = types.MethodType(result, future)
+        self.__future__ = future
 
     def __repr__(self):
         return repr(self.__future__.result())
@@ -368,3 +361,11 @@ class OperatorFuture(object):
             raise self._exception
         else:
             return self._result
+
+
+def result(future):
+    res, exc_info = future.__original_result__()
+    if exc_info:
+        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.current_frame__ + exc_info).split('\n'))
+        raise ResultEvaluationError(original_traceback)
+    return res
