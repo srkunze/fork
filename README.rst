@@ -103,7 +103,7 @@ Good
 
 - easy way back and forth (from sequential to parallel and vice versa)
 - results evaluate lazily
-- tracebacks are preserved
+- sequential tracebacks are preserved
 - cascading forks possible / thread-safety
 - compatible with Python 2 and 3
 
