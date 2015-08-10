@@ -41,7 +41,9 @@ def operator_error_io_fork():
 def test_cpu_bound_runtime_error():
     print('##### test_cpu_bound_runtime_error #####', file=sys.stderr)
     try:
-        x = fork(runtime_error_cpu)
+        x = 0
+        for i in range(2):
+            x += fork(runtime_error_cpu)
         print(x)
     except:
         traceback.print_exc()

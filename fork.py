@@ -7,6 +7,8 @@ from functools import wraps
 import threading
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
+_debug = False
+
 __version__ = '0.20'
 __version_info__ = (0, 20)
 __all__ = [
@@ -103,9 +105,12 @@ def _safety_wrapper(callable_, *args, **kwargs):
     _pools_of.processes = ProcessPoolExecutor()
     _pools_of.threads = ThreadPoolExecutor(_pools_of.processes._max_workers)
     try:
-        return callable_(*args, **kwargs), None
+        return callable_(*args, **kwargs)
     except BaseException as exc:
-        return None, (type(exc), traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
+        if _debug:
+            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2]) + traceback.format_exception_only(type(exc), exc))
+        else:
+            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
     finally:
         _pools_of.processes.shutdown()
         _pools_of.threads.shutdown()
@@ -116,10 +121,25 @@ class UnknownWaitingForError(Exception):
     pass
 
 
+class TransportException(Exception):
+
+    def __init__(self, exc, traceback_info):
+        self.exc = exc
+        self.traceback_info = traceback_info
+
+
+class ResultEvaluationError(Exception):
+
+    pass
+
+
 class ResultProxy(object):
 
     def __init__(self, future, stack_frames_to_pop_off=2):
-        future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off if stack_frames_to_pop_off is not None else None)]
+        if _debug:
+            future.__current_stack__ = traceback.format_stack()
+        else:
+            future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
         future.__original_result__ = future.result
         future.result = types.MethodType(result_with_proper_traceback, future)
         self.__future__ = future
@@ -349,28 +369,40 @@ class OperatorFuture(object):
             self._exception = exception
             self._cached = True
         if self._exception:
-            return None, (type(self._exception), traceback.format_exception_only(type(self._exception), self._exception))
-        return self._result, None
+            raise self._exception
+        return self._result
 
     def evaluate(self, node):
+        result = None
+        exception = None
         if type(node) == ResultProxy:
             result = yield node.__future__
-            raise StopIteration((result, None))
         elif type(node) == Future:
-            raise StopIteration((node.result(), None))
+            try:
+                result = node.result()
+            except BaseException as exc:
+                exception = exc
         elif type(node) == OperatorFuture:
             x1 = yield node.x1
             x2 = yield node.x2
             try:
-                raise StopIteration((node.op(x1, x2), None))
+                result = node.op(x1, x2)
             except BaseException as exc:
-                raise StopIteration((None, exc))
-        raise StopIteration((node, None))
+                exception = exc
+        else:
+            result = node
+        raise StopIteration((result, exception))
 
 
 def result_with_proper_traceback(future):
-    result, traceback_info = future.__original_result__()
-    if traceback_info is not None:
-        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + traceback_info[1]).split('\n'))
-        raise traceback_info[0](original_traceback)
-    return result
+    try:
+        return future.__original_result__()
+    except ResultEvaluationError:
+        raise
+    except TransportException as exc:
+        traceback_info = exc.traceback_info
+    except BaseException as exc:
+        traceback_info = traceback.format_exception_only(type(exc), exc)
+
+    original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + traceback_info).split('\n'))
+    raise ResultEvaluationError(original_traceback)
