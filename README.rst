@@ -31,10 +31,10 @@ How?
         create_thumbnail(image)       # parallelized implicitly (read below)
 
 
-Are return values possible?
----------------------------
+What about return values?
+-------------------------
 
-Sure:
+As usual:
 
 .. code:: python
 
@@ -45,8 +45,8 @@ It's a proxy object that behaves almost exactly like the real return value of my
 Furthermore, it evaluates only if needed; also in combination with operators (like +, - etc.).
 
 
-Exceptions, too?
-----------------
+What happens to exceptions?
+---------------------------
 
 Their original (sequential) tracebacks are preserved. That should make debugging easier.
 
