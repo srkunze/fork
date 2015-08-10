@@ -40,7 +40,7 @@ What about return values?
 
 
 That is a proxy object that behaves almost exactly as if it were the real return value of my_func:
-Furthermore, result proxies are contagious, i.e. operator (+, - etc.) evaluation is delayed until really needed.
+Furthermore, result proxies evaluate lazily, e.g. operators (like +, - etc.) evaluate until really needed.
 
 
 What about exceptions?
