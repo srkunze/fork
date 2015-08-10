@@ -2,11 +2,6 @@ from functools import wraps
 import threading
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
-import traceback
-import types
-from tblib import pickling_support
-pickling_support.install()
-import pickle, sys
 
 __version__ = '0.16'
 __version_info__ = (0, 16)
@@ -169,6 +164,8 @@ def _safety_wrapper(callable_, *args, **kwargs):
     try:
         result = callable_(*args, **kwargs)
     except:
+        import sys
+        import traceback
         tb = traceback.format_tb(sys.exc_info()[2])[1:]
     _pools_of.processes.shutdown()
     _pools_of.threads.shutdown()
@@ -198,6 +195,7 @@ class FutureWrapper(object):
                 raise ResultEvaluationError(original_traceback)
             return res
         future.old_result = future.result
+        import types
         future.result = types.MethodType(result, future)
 
     def __repr__(self):
