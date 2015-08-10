@@ -127,7 +127,7 @@ class ResultProxy(object):
     def __init__(self, future):
         future.__current_frame__ = traceback.format_stack()[:-3]
         future.__original_result__ = future.result
-        future.result = types.MethodType(result, future)
+        future.result = types.MethodType(result_with_proper_traceback, future)
         self.__future__ = future
 
     def __repr__(self):
@@ -358,14 +358,14 @@ class OperatorFuture(object):
                 self._exception = e
             self._cached = True
         if self._exception:
-            raise self._exception
+            return  None, []
         else:
-            return self._result
+            return self._result, None
 
 
-def result(future):
+def result_with_proper_traceback(future):
     res, exc_info = future.__original_result__()
-    if exc_info:
-        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.current_frame__ + exc_info).split('\n'))
+    if exc_info is not None:
+        original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_frame__ + exc_info).split('\n'))
         raise ResultEvaluationError(original_traceback)
     return res
