@@ -45,8 +45,8 @@ It's a proxy object that behaves almost exactly like the real return value of my
 Furthermore, it evaluates only if needed; also in combination with operators (like +, - etc.).
 
 
-What about exceptions?
-----------------------
+What happens when an exception occurs?
+--------------------------------------
 
 Its original (sequential) traceback is preserved. That should make debugging easier.
 
@@ -104,7 +104,7 @@ Good
 - easy way back and forth (from sequential to parallel and vice versa)
 - results evaluate lazily
 - tracebacks are preserved
-- cascading possible (thread-safe)
+- cascading forks possible / thread-safety
 - compatible with Python 2 and 3
 
 Bad
@@ -115,7 +115,6 @@ Bad
 - not working with lambdas due to PickleError
 - needs fix:
 
-  - "maximum recursion depth exceeded" due to encapsulating all operations into proxies
   - not working with coroutines (asyncio_) yet
 
 
