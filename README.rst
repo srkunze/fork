@@ -31,8 +31,8 @@ How?
         create_thumbnail(image)       # parallelized implicitly (read below)
 
 
-Does it work with return values?
---------------------------------
+Are return values possible?
+---------------------------
 
 Sure:
 
@@ -45,10 +45,10 @@ It's a proxy object that behaves almost exactly like the real return value of my
 Furthermore, it evaluates only if needed; also in combination with operators (like +, - etc.).
 
 
-What happens when an exception occurs?
---------------------------------------
+Exceptions, too?
+----------------
 
-Its original (sequential) traceback is preserved. That should make debugging easier.
+Their original (sequential) tracebacks are preserved. That should make debugging easier.
 
 
 Speaking of threads ...
