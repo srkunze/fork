@@ -13,7 +13,7 @@ __version__ = '0.25'
 __version_info__ = (0, 25)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
-    'fork',
+    'fork', 'evaluate',
     'UnknownWaitingForError', 'ResultEvaluationError',
 ]
 
@@ -99,6 +99,13 @@ def fork(callable_, *args, **kwargs):
     elif waiting_for == 'io':
         return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     raise UnknownWaitingForError(waiting_for)
+
+
+def evaluate(result_proxy):
+    """
+    Unwraps the result from the proxy.
+    """
+    return result_proxy.__future__.result()
 
 
 def _safety_wrapper(callable_, *args, **kwargs):
