@@ -112,7 +112,6 @@ Bad
 
 - weird calling syntax (no syntax support)
 - type(result) == ResultProxy
-- exception handling is broken
 - not working with lambdas due to PickleError
 - needs fix:
 
