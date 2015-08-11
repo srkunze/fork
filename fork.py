@@ -130,7 +130,8 @@ class UnknownWaitingForError(Exception):
 
 class TransportException(Exception):
 
-    def __init__(self, exc, traceback_info):
+    #FIXME: remove default parameters when https://github.com/agronholm/pythonfutures/issues/30 is fixed
+    def __init__(self, exc=None, traceback_info=None):
         self.exc = exc
         self.traceback_info = traceback_info
 
