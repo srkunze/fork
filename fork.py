@@ -14,7 +14,7 @@ __version_info__ = (0, 23)
 __all__ = [
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
     'fork',
-    'UnknownWaitingForError',
+    'UnknownWaitingForError', 'ResultEvaluationError',
 ]
 
 
