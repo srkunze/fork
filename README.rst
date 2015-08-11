@@ -1,7 +1,7 @@
 FORK_
 =====
 
-Convert a classic sequential program into a parallel one.
+Write a classic sequential program. Then convert it into a parallel one.
 
 
 Why?
@@ -49,6 +49,7 @@ What happens to exceptions?
 ---------------------------
 
 Their original (sequential) tracebacks are preserved. That should make debugging easier.
+However, don't try to catch exceptions. You better want to see it and end the interpreter.
 
 
 Speaking of threads ...
@@ -112,9 +113,11 @@ Bad
 
 - weird calling syntax (no syntax support)
 - type(result) == ResultProxy
+- Exception handling is broken
 - not working with lambdas due to PickleError
 - needs fix:
 
+  - fix exception handling somehow
   - not working with coroutines (asyncio_) yet
 
 
