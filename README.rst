@@ -120,5 +120,4 @@ Bad
 
 
 .. _FORK: https://pypi.python.org/pypi/xfork
-.. _futures: https://pypi.python.org/pypi/futures
 .. _asyncio: https://docs.python.org/3/library/asyncio.html
