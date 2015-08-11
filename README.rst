@@ -76,7 +76,7 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
 Parallelize implicitly?
 -----------------------
 
-If you don't like the fork calling syntax, you can convert certain functions into forks.
+If you don't like the fork calling syntax, you can convert certain functions into stand-alone forks.
 
 **Use with caution.**
 
@@ -101,7 +101,7 @@ Conclusion
 Good
 ****
 
-- easy way back and forth (from sequential to parallel and vice versa)
+- easy way from sequential to parallel and back / easy to give it a try
 - results evaluate lazily
 - sequential tracebacks are preserved
 - cascading forks possible / thread-safety
