@@ -48,7 +48,7 @@ What happens to exceptions?
 ---------------------------
 
 Their original (sequential) tracebacks are preserved. That should make debugging easier.
-However, don't try to catch exceptions. You better want to see it and end the interpreter.
+However, don't try to catch exceptions. You better want to exit and see them.
 
 
 Speaking of threads ...
