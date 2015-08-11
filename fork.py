@@ -362,7 +362,7 @@ class OperatorFuture(object):
                     result = None
                 except StopIteration as exc:
                     stack.pop()
-                    result, exception = exc.value
+                    result, exception = exc.args[0]
                 if exception:
                     break
             self._result = result
