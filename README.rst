@@ -101,10 +101,10 @@ Conclusion
 Good
 ****
 
-- easy way from sequential to parallel and back / easy to give it a try
+- easy to give it a try / easy way from sequential to parallel and back
 - results evaluate lazily
 - sequential tracebacks are preserved
-- cascading forks possible / thread-safety
+- cascading forks possible / it's thread-safe
 - compatible with Python 2 and 3
 
 Bad
