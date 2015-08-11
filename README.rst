@@ -104,7 +104,7 @@ Good
 - easy to give it a try / easy way from sequential to parallel and back
 - results evaluate lazily
 - sequential tracebacks are preserved
-- cascading forks possible / it's thread-safe
+- it's thread-safe / cascading forks possible
 - compatible with Python 2 and 3
 
 Bad
