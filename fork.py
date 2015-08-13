@@ -408,9 +408,11 @@ def result_with_proper_traceback(future):
     except ResultEvaluationError:
         raise
     except TransportException as exc:
+        original_exception_class = type(exc.exc)
         traceback_info = exc.traceback_info
     except BaseException as exc:
+        original_exception_class = type(exc)
         traceback_info = traceback.format_exception_only(type(exc), exc)
 
     original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + traceback_info).split('\n'))
-    raise ResultEvaluationError(original_traceback)
+    raise original_exception_class(original_traceback)
