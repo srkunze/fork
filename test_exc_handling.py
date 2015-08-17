@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+
 from fork import *
+
 
 class ArbitraryException(Exception):
     pass
@@ -23,7 +25,7 @@ def func11(x):
     try:
         return func12(x)
     except ArbitraryException:
-        print('test failed: catched ArbitraryException in wrong try-block')
+        print('test failed: catched ArbitraryException in wrong try-block A')
         raise ExitTestException
 
 def func12(x):
@@ -59,9 +61,10 @@ def test_result_proxy_evaluation_when_entering_a_try_statement():
 def test_result_proxy_evaluation_when_exiting_a_try_statement():
     print('##### test_result_proxy_evaluation_when_exiting_a_try_statement #####')
     try:
-        evaluate(func20())
+        x = func20()
+        func10(x)
     except ArbitraryException:
-        print('test failed: catched ArbitraryException in wrong try-block')
+        print('test failed: catched ArbitraryException in wrong try-block B')
         raise ExitTestException
     else:
         print('test failed: no ArbitraryException catched in correct try-block')
