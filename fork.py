@@ -81,6 +81,7 @@ def unsafe(callable_):
 _pools_of = threading.local()
 _pools_of.processes = ProcessPoolExecutor()
 _pools_of.threads = ThreadPoolExecutor(2 * _pools_of.processes._max_workers)
+_pools_of.not_evaluated_result_proxies = []
 
 
 def fork(callable_, *args, **kwargs):
@@ -108,9 +109,16 @@ def evaluate(result_proxy):
     return result_proxy.__future__.result()
 
 
+def __evaluate_all__():
+    for result_proxy in _pools_of.not_evaluated_result_proxies:
+        evaluate(result_proxy)
+    ResultProxy.non_evaluated_instances = []
+
+
 def _safety_wrapper(callable_, *args, **kwargs):
     _pools_of.processes = ProcessPoolExecutor()
     _pools_of.threads = ThreadPoolExecutor(2 * _pools_of.processes._max_workers)
+    _pools_of.result_proxies = []
     try:
         return callable_(*args, **kwargs)
     except BaseException as exc:
@@ -151,6 +159,7 @@ class ResultProxy(object):
         future.__original_result__ = future.result
         future.result = types.MethodType(result_with_proper_traceback, future)
         self.__future__ = future
+        self.result_proxies.append(self)
 
     def __repr__(self):
         return repr(self.__future__.result())
@@ -422,8 +431,27 @@ from importlib import  _bootstrap
 from importlib._bootstrap import SourceLoader, _call_with_frames_removed
 import ast
 
-_bootstrap.MAGIC_NUMBER = (3353).to_bytes(2, 'little') + b'\r\n'
+_bootstrap.MAGIC_NUMBER = (3356).to_bytes(2, 'little') + b'\r\n'
 _bootstrap._RAW_MAGIC_NUMBER = int.from_bytes(_bootstrap.MAGIC_NUMBER, 'little')  # For import.c
+
+
+class TryModifier(ast.NodeTransformer):
+
+    def visit(self, node):
+        ast.NodeVisitor.generic_visit(self, node)
+
+        if isinstance(node, ast.Try):
+            call = ast.Call()
+            call.func = __evaluate_all__
+            call.args = []
+            call.keywords = []
+
+            return [call, node] # before entering the try block
+
+        # TODO: before exiting the try block
+        # need to think about return, raise and so forth
+
+        return node
 
 
 def source_to_code(self, data, path, *, _optimize=-1):
@@ -432,10 +460,7 @@ def source_to_code(self, data, path, *, _optimize=-1):
     The 'data' argument can be any object type that compile() supports.
     """
     ast_object = data if isinstance(data, ast.AST) else ast.parse(data)
-    #TODO: implement fully featured hook using NodeVisitor
-    # for try_block in ast_object:
-    #   try_block.prev_statement.append("__evaluate__()")
-    #   try_block.statements.append("__evaluate__()")
+    ast_object = TryModifier().visit(ast_object)
     return _call_with_frames_removed(compile, ast_object, path, 'exec', dont_inherit=True, optimize=_optimize)
 
 SourceLoader.source_to_code = source_to_code
