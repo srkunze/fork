@@ -110,9 +110,8 @@ def evaluate(result_proxy):
 
 
 def __evaluate_all__():
-    for result_proxy in _pools_of.not_evaluated_result_proxies:
-        evaluate(result_proxy)
-    ResultProxy.non_evaluated_instances = []
+    while getattr(_pools_of, 'not_evaluated_result_proxies', False):
+        evaluate(_pools_of.not_evaluated_result_proxies.pop())
 
 
 def _safety_wrapper(callable_, *args, **kwargs):
@@ -159,7 +158,7 @@ class ResultProxy(object):
         future.__original_result__ = future.result
         future.result = types.MethodType(result_with_proper_traceback, future)
         self.__future__ = future
-        self.result_proxies.append(self)
+        _pools_of.not_evaluated_result_proxies.append(self)
 
     def __repr__(self):
         return repr(self.__future__.result())
@@ -431,22 +430,44 @@ from importlib import  _bootstrap
 from importlib._bootstrap import SourceLoader, _call_with_frames_removed
 import ast
 
-_bootstrap.MAGIC_NUMBER = (3356).to_bytes(2, 'little') + b'\r\n'
+_bootstrap.MAGIC_NUMBER = (3351).to_bytes(2, 'little') + b'\r\n'
 _bootstrap._RAW_MAGIC_NUMBER = int.from_bytes(_bootstrap.MAGIC_NUMBER, 'little')  # For import.c
 
 
 class TryModifier(ast.NodeTransformer):
 
     def visit(self, node):
-        ast.NodeVisitor.generic_visit(self, node)
+        self.generic_visit(node)
 
         if isinstance(node, ast.Try):
-            call = ast.Call()
-            call.func = __evaluate_all__
-            call.args = []
-            call.keywords = []
+            newnode0 = ast.ImportFrom(
+                module='fork',
+                names=[
+                    ast.alias(
+                        name='__evaluate_all__',
+                        asname=None,
+                    ),
+                ],
+                level=0
+            )
+            ast.copy_location(newnode0, node)
+            ast.fix_missing_locations(newnode0)
+            newnode = ast.Expr(
+                value=ast.Call(
+                    func=ast.Name(
+                        id='__evaluate_all__',
+                        ctx=ast.Load(),
+                    ),
+                    args=[],
+                    keywords=[],
+                    starargs=None,
+                    kwargs=None,
+                ),
+            )
+            ast.copy_location(newnode, node)
+            ast.fix_missing_locations(newnode)
 
-            return [call, node] # before entering the try block
+            return [newnode0, newnode, node] # before entering the try block
 
         # TODO: before exiting the try block
         # need to think about return, raise and so forth
