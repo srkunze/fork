@@ -7,7 +7,13 @@ Write a classic sequential program. Then convert it into a parallel one.
 Why?
 ----
 
-It runs faster. If not, don't use it.
+It runs faster.
+
+
+What if not?
+------------
+
+Don't use it.
 
 
 How?
@@ -40,7 +46,7 @@ Furthermore, it evaluates only if needed; also in combination with operators (li
 Exception handling
 ------------------
 
-Their original (sequential) tracebacks are preserved. That should make debugging easier.
+Original (sequential) tracebacks are preserved. That should make debugging easier.
 However, don't try to catch exceptions. You better want to exit and see them.
 Use `evaluate` to force evaluation in order to raise potential exceptions.
 
@@ -109,7 +115,7 @@ Bad
 - not working with lambdas due to PickleError
 - needs fix:
 
-  - fix exception handling somehow
+  - exception handling (force evaluation when entering and leaving try blocks)
   - not working with coroutines (asyncio_) yet
 
 
