@@ -27,7 +27,7 @@ How?
         create_thumbnail(image)       # original
 
     for image in images:
-        fork(create_thumbnail, image) # parallelized (read below for implicit fork)
+        fork(create_thumbnail, image) # parallelized (read below for implicit forks)
 
 
 What about return values?
@@ -73,10 +73,10 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
         # implementation
 
 
-Parallelize implicitly?
------------------------
+Implicit Forks
+--------------
 
-If you don't like the fork calling syntax, you can convert certain functions into stand-alone forks.
+If you don't like the fork calling syntax, you can convert functions into stand-alone forks.
 
 **Use with caution.**
 
