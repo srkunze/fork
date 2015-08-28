@@ -21,6 +21,8 @@ How?
 
 .. code:: python
 
+    from fork import *
+
     for image in images:
         create_thumbnail(image)       # original
 
@@ -49,6 +51,7 @@ What happens to exceptions?
 
 Their original (sequential) tracebacks are preserved. That should make debugging easier.
 However, don't try to catch exceptions. You better want to exit and see them.
+Use `evaluate` to force evaluation in order to raise potential exceptions.
 
 
 Speaking of threads ...
