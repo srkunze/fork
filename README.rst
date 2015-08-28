@@ -27,10 +27,7 @@ How?
         create_thumbnail(image)       # original
 
     for image in images:
-        fork(create_thumbnail, image) # parallelized explicitly 
-
-    for image in images:
-        create_thumbnail(image)       # parallelized implicitly (read below)
+        fork(create_thumbnail, image) # parallelized (read below for implicit fork)
 
 
 What about return values?
