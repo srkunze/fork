@@ -7,13 +7,7 @@ Write a classic sequential program. Then convert it into a parallel one.
 Why?
 ----
 
-It runs faster.
-
-
-What if not?
-------------
-
-Don't use it.
+It runs faster. If not, don't use it.
 
 
 How?
@@ -43,8 +37,8 @@ It's a proxy object that behaves almost exactly like the real return value of my
 Furthermore, it evaluates only if needed; also in combination with operators (like +, - etc.).
 
 
-What happens to exceptions?
----------------------------
+Exception handling
+------------------
 
 Their original (sequential) tracebacks are preserved. That should make debugging easier.
 However, don't try to catch exceptions. You better want to exit and see them.
