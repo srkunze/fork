@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import os
 import sys
 import types
 import traceback
@@ -79,8 +79,8 @@ def unsafe(callable_):
 
 
 _pools_of = threading.local()
-_pools_of.processes = ProcessPoolExecutor()
-_pools_of.threads = ThreadPoolExecutor(2 * _pools_of.processes._max_workers)
+_pools_of.processes = None
+_pools_of.threads = None
 
 
 def fork(callable_, *args, **kwargs):
@@ -95,8 +95,12 @@ def fork(callable_, *args, **kwargs):
     waiting_for = getattr(callable_, '__waiting_for__', 'cpu')
     stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 2)
     if waiting_for == 'cpu':
+        if not _pools_of.processes:
+            _pools_of.processes = ProcessPoolExecutor()
         return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     elif waiting_for == 'io':
+        if not _pools_of.threads:
+            _pools_of.threads = ThreadPoolExecutor(2 * (os.cpu_count() or 1))
         return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     raise UnknownWaitingForError(waiting_for)
 
@@ -109,8 +113,8 @@ def evaluate(result_proxy):
 
 
 def _safety_wrapper(callable_, *args, **kwargs):
-    _pools_of.processes = ProcessPoolExecutor()
-    _pools_of.threads = ThreadPoolExecutor(2 * _pools_of.processes._max_workers)
+    _pools_of.processes = None
+    _pools_of.threads = None
     try:
         return callable_(*args, **kwargs)
     except BaseException as exc:
@@ -119,8 +123,10 @@ def _safety_wrapper(callable_, *args, **kwargs):
         else:
             raise TransportException(exc, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
     finally:
-        _pools_of.processes.shutdown()
-        _pools_of.threads.shutdown()
+        if _pools_of.processes:
+            _pools_of.processes.shutdown()
+        if _pools_of.threads:
+            _pools_of.threads.shutdown()
 
 
 class UnknownWaitingForError(Exception):
