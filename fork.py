@@ -7,6 +7,11 @@ from functools import wraps
 import threading
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
+try:
+    import asyncio
+except ImportError:
+    asyncio = None
+
 _debug = False
 
 __version__ = '0.30'
@@ -81,6 +86,7 @@ def unsafe(callable_):
 _pools_of = threading.local()
 _pools_of.processes = None
 _pools_of.threads = None
+_pools_of.tasks = None
 
 
 def fork(callable_, *args, **kwargs):
@@ -96,12 +102,17 @@ def fork(callable_, *args, **kwargs):
     stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 2)
     if waiting_for == 'cpu':
         if not _pools_of.processes:
-            _pools_of.processes = ProcessPoolExecutor()
+            _pools_of.processes = ProcessPoolExecutor(os.cpu_count() or 1)
         return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     elif waiting_for == 'io':
-        if not _pools_of.threads:
-            _pools_of.threads = ThreadPoolExecutor(2 * (os.cpu_count() or 1))
-        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
+        if asyncio:
+            if not _pools_of.tasks:
+                _pools_of.tasks = asyncio.events.get_event_loop()
+            return ResultProxy(_pools_of.tasks.run_until_complete(server), stack_frames_to_pop_off)
+        else:
+            if not _pools_of.threads:
+                _pools_of.threads = ThreadPoolExecutor(2 * (os.cpu_count() or 1))
+            return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     raise UnknownWaitingForError(waiting_for)
 
 
@@ -115,6 +126,7 @@ def evaluate(result_proxy):
 def _safety_wrapper(callable_, *args, **kwargs):
     _pools_of.processes = None
     _pools_of.threads = None
+    _pools_of.tasks = None
     try:
         return callable_(*args, **kwargs)
     except BaseException as exc:
@@ -127,6 +139,8 @@ def _safety_wrapper(callable_, *args, **kwargs):
             _pools_of.processes.shutdown()
         if _pools_of.threads:
             _pools_of.threads.shutdown()
+        if _pools_of.tasks:
+            _pools_of.tasks.shutdown()
 
 
 class UnknownWaitingForError(Exception):
@@ -420,3 +434,7 @@ def result_with_proper_traceback(future):
 
     original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + traceback_info).split('\n'))
     raise ResultEvaluationError(original_traceback)
+
+
+if sys.version_info >= (3, 4):
+    import _fork_asyncio
