@@ -45,7 +45,7 @@ As usual:
 
     result = fork(my_func, *args, **kwargs)
 
-It's a proxy object that behaves almost exactly like the real return value of my_func.
+It's a proxy object that behaves almost exactly like the real return value of ``my_func``.
 Furthermore, it evaluates only if needed; also in combination with operators (like +, - etc.).
 
 
