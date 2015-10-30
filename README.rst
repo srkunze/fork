@@ -96,6 +96,8 @@ If you don't like the fork calling syntax, you can convert functions into stand-
 
 **Use with caution.**
 
+**Please note, I am not happy with these ones. So, they might be deprecated. If they are really, really necessary, let me know.**
+
 .. code:: python
 
     @io_bound_fork
