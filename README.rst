@@ -19,15 +19,18 @@ Don't use it.
 How?
 ----
 
+Before
 .. code:: python
 
     from fork import *
 
     for image in images:
-        create_thumbnail(image)       # original
+        create_thumbnail(image)
 
+After
+.. code:: python
     for image in images:
-        fork(create_thumbnail, image) # parallelized (read below for implicit forks)
+        fork(create_thumbnail, image)
 
 
 What about return values?
