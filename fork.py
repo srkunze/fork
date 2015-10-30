@@ -31,6 +31,15 @@ def fork(callable_, *args, **kwargs):
     return _submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args, **kwargs)
 
 
+def submit(callable_, *args, **kwargs):
+    """
+    Submits a callable to background process or thread
+    depending on its io- or cpu-boundness.
+    Returns an proxy object for the return value.
+    """
+    return _submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args, **kwargs)
+
+
 def process(callable_, *args, **kwargs):
     """
     Submits a callable to background process. Only use, if you
