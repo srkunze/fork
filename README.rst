@@ -1,7 +1,7 @@
 FORK_
 =====
 
-Write a classic sequential program. Then convert it into a parallel one.
+Write a classic **sequential** program. Then convert it into a **parallel** one.
 
 
 Why?
