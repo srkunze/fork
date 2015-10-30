@@ -124,6 +124,7 @@ Bad
   - not working with coroutines (asyncio_) yet (working on it)
 
 - cannot fix efficiently:
+
   - exception handling (force evaluation when entering and leaving try blocks)
 
 - ideas are welcome :-)
