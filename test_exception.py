@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 import re
 import traceback
 from fork import *
@@ -159,7 +160,7 @@ Traceback \(most recent call last\):
     return str\(self\.__future__\.result\(\)\)
   File ".*/fork\.py", line \d+, in result_with_proper_traceback
     raise ResultEvaluationError\(original_traceback\)
-fork\.ResultEvaluationError:\s*
+(fork\.)?ResultEvaluationError:\s*
 \s*
     Original Traceback \(most recent call last\):
       File ".*/test_exception\.py", line \d+, in <module>
@@ -181,7 +182,7 @@ Traceback \(most recent call last\):
     return str\(self.__future__.result\(\)\)
   File ".*/fork\.py", line \d+, in result_with_proper_traceback
     raise ResultEvaluationError\(original_traceback\)
-fork.ResultEvaluationError:\s*
+(fork.)?ResultEvaluationError:\s*
 \s*
     Original Traceback \(most recent call last\):
       File ".*/test_exception\.py", line \d+, in <module>
