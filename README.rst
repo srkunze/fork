@@ -78,6 +78,7 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
     def weird_side_effects(*args, **kwargs):
         # implementation
 
+
 Advanced Feature: Force Specific Type of Execution
 --------------------------------------------------
 
@@ -90,6 +91,7 @@ They work just like ``fork.fork`` but enforce the corresponding type of backgrou
 
     for worker_function in pkg_resources.iter_entry_points(group='worker'):
         process(worker_function)
+
 
 Advanced Feature: Implicit Forks
 --------------------------------
