@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-import os
 import sys
 import types
 import traceback
 from functools import wraps
 import threading
+import multiprocessing
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
 _debug = False
@@ -100,7 +100,7 @@ def fork(callable_, *args, **kwargs):
         return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     elif waiting_for == 'io':
         if not _pools_of.threads:
-            _pools_of.threads = ThreadPoolExecutor(2 * (os.cpu_count() or 1))
+            _pools_of.threads = ThreadPoolExecutor(2 * (multiprocessing.cpu_count() or 1))
         return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
     raise UnknownWaitingForError(waiting_for)
 
