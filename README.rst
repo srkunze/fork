@@ -78,12 +78,19 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
     def weird_side_effects(*args, **kwargs):
         # implementation
 
+Advanced Feature: Force Specific Type of Execution
+--------------------------------------------------
 If you really need more control over the type of exeution, use ``fork.process`` or ``fork.thread``.
 They work just like ``fork.fork`` but enforce the corresponding type of background execution.
 
+.. code:: python
 
-Advanced Features: Implicit Forks
----------------------------------
+    import pkg_resources
+    for worker_function in pkg_resources.iter_entry_points(group='worker'):
+        process(worker_function)
+
+Advanced Feature: Implicit Forks
+--------------------------------
 
 If you don't like the fork calling syntax, you can convert functions into stand-alone forks.
 
