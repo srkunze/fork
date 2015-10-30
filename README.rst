@@ -19,18 +19,18 @@ Don't use it.
 How?
 ----
 
-Before
+**Before**
 
 .. code:: python
-
-    from fork import *
 
     for image in images:
         create_thumbnail(image)
 
-After
+**After**
 
 .. code:: python
+
+    from fork import *
 
     for image in images:
         fork(create_thumbnail, image)
