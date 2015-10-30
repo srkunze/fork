@@ -54,7 +54,7 @@ Exception handling
 
 Original (sequential) tracebacks are preserved. That should make debugging easier.
 However, don't try to catch exceptions. You better want to exit and see them.
-Use ``evaluate`` to force evaluation in order to raise potential exceptions.
+Use ``fork.evaluate`` to force evaluation in order to raise potential exceptions.
 
 
 Speaking of threads ...
@@ -77,6 +77,9 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
     @unsafe # don't fork; run sequentially
     def weird_side_effects(*args, **kwargs):
         # implementation
+
+If you really need more control over the type of exeution, use ``fork.process`` or ``fork.thread``.
+They work just like ``fork.fork`` but enforce the corresponding type of background execution.
 
 
 Advanced Features: Implicit Forks
