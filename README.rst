@@ -79,8 +79,8 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
         # implementation
 
 
-Implicit Forks
---------------
+Advanced Features: Implicit Forks
+---------------------------------
 
 If you don't like the fork calling syntax, you can convert functions into stand-alone forks.
 
