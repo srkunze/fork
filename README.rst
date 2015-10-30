@@ -86,6 +86,7 @@ They work just like ``fork.fork`` but enforce the corresponding type of backgrou
 .. code:: python
 
     import pkg_resources
+
     for worker_function in pkg_resources.iter_entry_points(group='worker'):
         process(worker_function)
 
