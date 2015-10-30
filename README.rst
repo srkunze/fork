@@ -19,14 +19,14 @@ Don't use it.
 How?
 ----
 
-**Before**
+Before:
 
 .. code:: python
 
     for image in images:
         create_thumbnail(image)
 
-**After**
+After:
 
 .. code:: python
 
