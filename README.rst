@@ -20,6 +20,7 @@ How?
 ----
 
 Before
+
 .. code:: python
 
     from fork import *
@@ -28,6 +29,7 @@ Before
         create_thumbnail(image)
 
 After
+
 .. code:: python
     for image in images:
         fork(create_thumbnail, image)
