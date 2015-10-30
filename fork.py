@@ -9,13 +9,85 @@ from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
 _debug = False
 
-__version__ = '0.31'
-__version_info__ = (0, 31)
+__version__ = '0.32'
+__version_info__ = (0, 32)
 __all__ = [
+    'fork', 'process', 'thread', 'evaluate',
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
-    'fork', 'evaluate',
     'UnknownWaitingForError', 'ResultEvaluationError',
 ]
+
+
+_pools_of = threading.local()
+_pools_of.processes = None
+_pools_of.threads = None
+
+
+def fork(callable_, *args, **kwargs):
+    """
+    Submits a callable to background process or thread
+    depending on its io- or cpu-boundness.
+    Returns an proxy object for the return value.
+    """
+    return _submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args, **kwargs)
+
+
+def process(callable_, *args, **kwargs):
+    """
+    Submits a callable to background process. Only use, if you
+    really need control over the type of background execution.
+    Returns an proxy object for the return value.
+    """
+    return _submit(callable_, 'cpu', *args, **kwargs)
+
+
+def thread(callable_, *args, **kwargs):
+    """
+    Submits a callable to background thread. Only use, if you
+    really need control over the type of background execution.
+    Returns an proxy object for the return value.
+    """
+    return _submit(callable_, 'io', *args, **kwargs)
+
+
+def evaluate(result_proxy):
+    """
+    Unwraps the result from the proxy.
+    """
+    return result_proxy.__future__.result()
+
+
+def _submit(callable_, waiting_for, *args, **kwargs):
+
+    if getattr(callable_, '__has_side_effects__', False):
+        raise RuntimeError('callable is not safe for running of the MainThread.')
+    stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 2)
+    if waiting_for == 'cpu':
+        if not _pools_of.processes:
+            _pools_of.processes = ProcessPoolExecutor()
+        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
+    elif waiting_for == 'io':
+        if not _pools_of.threads:
+            _pools_of.threads = ThreadPoolExecutor(2 * (multiprocessing.cpu_count() or 1))
+        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
+    raise RuntimeError('unknown waiting_for {waiting_for}'.format(waiting_for=waiting_for))
+
+
+def _safety_wrapper(callable_, *args, **kwargs):
+    _pools_of.processes = None
+    _pools_of.threads = None
+    try:
+        return callable_(*args, **kwargs)
+    except BaseException as exc:
+        if _debug:
+            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2]) + traceback.format_exception_only(type(exc), exc))
+        else:
+            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
+    finally:
+        if _pools_of.processes:
+            _pools_of.processes.shutdown()
+        if _pools_of.threads:
+            _pools_of.threads.shutdown()
 
 
 def cpu_bound(callable_):
@@ -76,62 +148,6 @@ def unsafe(callable_):
     """
     callable_.__has_side_effects__ = True
     return callable_
-
-
-_pools_of = threading.local()
-_pools_of.processes = None
-_pools_of.threads = None
-
-
-def fork(callable_, *args, **kwargs):
-    """
-    Submit a callable to another process or thread
-    depending on its io- or cpu-boundness.
-    Returns an proxy object for the return value.
-    """
-    has_side_effects = getattr(callable_, '__has_side_effects__', False)
-    if has_side_effects:
-        return callable_(*args, **kwargs)
-    waiting_for = getattr(callable_, '__waiting_for__', 'cpu')
-    stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 2)
-    if waiting_for == 'cpu':
-        if not _pools_of.processes:
-            _pools_of.processes = ProcessPoolExecutor()
-        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
-    elif waiting_for == 'io':
-        if not _pools_of.threads:
-            _pools_of.threads = ThreadPoolExecutor(2 * (multiprocessing.cpu_count() or 1))
-        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
-    raise UnknownWaitingForError(waiting_for)
-
-
-def evaluate(result_proxy):
-    """
-    Unwraps the result from the proxy.
-    """
-    return result_proxy.__future__.result()
-
-
-def _safety_wrapper(callable_, *args, **kwargs):
-    _pools_of.processes = None
-    _pools_of.threads = None
-    try:
-        return callable_(*args, **kwargs)
-    except BaseException as exc:
-        if _debug:
-            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2]) + traceback.format_exception_only(type(exc), exc))
-        else:
-            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
-    finally:
-        if _pools_of.processes:
-            _pools_of.processes.shutdown()
-        if _pools_of.threads:
-            _pools_of.threads.shutdown()
-
-
-class UnknownWaitingForError(Exception):
-
-    pass
 
 
 class TransportException(Exception):
