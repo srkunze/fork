@@ -121,8 +121,12 @@ Bad
 - not working with lambdas due to PickleError
 - needs fix:
 
+  - not working with coroutines (asyncio_) yet (working on it)
+
+- cannot fix efficiently:
   - exception handling (force evaluation when entering and leaving try blocks)
-  - not working with coroutines (asyncio_) yet
+
+- ideas are welcome :-)
 
 
 .. _FORK: https://pypi.python.org/pypi/xfork
