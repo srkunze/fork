@@ -60,7 +60,7 @@ def _submit(callable_, waiting_for, *args, **kwargs):
 
     if getattr(callable_, '__has_side_effects__', False):
         raise RuntimeError('callable is not safe for running off the MainThread.')
-    stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 2)
+    stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 3)
     if waiting_for == 'cpu':
         if not _pools_of.processes:
             _pools_of.processes = ProcessPoolExecutor()
@@ -110,7 +110,7 @@ def cpu_bound_fork(callable_):
     cpu-bound and safe for running off the MainThread.
     """
     callable_ = cpu_bound(callable_)
-    callable_.__stack_frames_to_pop_off__ = 3
+    callable_.__stack_frames_to_pop_off__ = 4
 
     @wraps(callable_)
     def fork_wrapper(*args, **kwargs):
@@ -130,7 +130,7 @@ def io_bound_fork(callable_):
     io-bound and safe for running off the MainThread.
     """
     callable_ = io_bound(callable_)
-    callable_.__stack_frames_to_pop_off__ = 3
+    callable_.__stack_frames_to_pop_off__ = 4
 
     @wraps(callable_)
     def fork_wrapper(*args, **kwargs):
