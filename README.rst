@@ -31,6 +31,7 @@ Before
 After
 
 .. code:: python
+
     for image in images:
         fork(create_thumbnail, image)
 
