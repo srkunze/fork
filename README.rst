@@ -30,7 +30,7 @@ After:
 
 .. code:: python
 
-    from fork import *
+    from fork import fork
 
     for image in images:
         fork(create_thumbnail, image)
