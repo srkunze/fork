@@ -14,7 +14,7 @@ __version_info__ = (0, 32)
 __all__ = [
     'fork', 'process', 'thread', 'evaluate',
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
-    'UnknownWaitingForError', 'ResultEvaluationError',
+    'ResultEvaluationError',
 ]
 
 
@@ -60,7 +60,7 @@ def evaluate(result_proxy):
 def _submit(callable_, waiting_for, *args, **kwargs):
 
     if getattr(callable_, '__has_side_effects__', False):
-        raise RuntimeError('callable is not safe for running of the MainThread.')
+        raise RuntimeError('callable is not safe for running off the MainThread.')
     stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 2)
     if waiting_for == 'cpu':
         if not _pools_of.processes:
