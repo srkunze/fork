@@ -7,7 +7,6 @@ import threading
 import multiprocessing
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
-_debug = False
 
 __version__ = '0.32'
 __version_info__ = (0, 32)
@@ -79,10 +78,7 @@ def _safety_wrapper(callable_, *args, **kwargs):
     try:
         return callable_(*args, **kwargs)
     except BaseException as exc:
-        if _debug:
-            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2]) + traceback.format_exception_only(type(exc), exc))
-        else:
-            raise TransportException(exc, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
+        raise TransportException(exc, traceback.format_tb(sys.exc_info()[2])[1:] + traceback.format_exception_only(type(exc), exc))
     finally:
         if _pools_of.processes:
             _pools_of.processes.shutdown()
@@ -166,10 +162,7 @@ class ResultEvaluationError(Exception):
 class ResultProxy(object):
 
     def __init__(self, future, stack_frames_to_pop_off=2):
-        if _debug:
-            future.__current_stack__ = traceback.format_stack()
-        else:
-            future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
+        future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
         future.__original_result__ = future.result
         future.result = types.MethodType(result_with_proper_traceback, future)
         self.__future__ = future
