@@ -80,7 +80,7 @@ You can assist fork by decorating your functions (not decorating defaults to cpu
 
 Advanced Feature: Force Specific Type of Execution
 --------------------------------------------------
-If you really need more control over the type of exeution, use ``fork.process`` or ``fork.thread``.
+If you really need more control over the type of execution, use ``fork.process`` or ``fork.thread``.
 They work just like ``fork.fork`` but enforce the corresponding type of background execution.
 
 .. code:: python
