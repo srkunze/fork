@@ -93,8 +93,8 @@ They work just like ``fork.fork`` but enforce the corresponding type of backgrou
         process(worker_function)
 
 
-Advanced Feature: Multi-Execution At Once
------------------------------------------
+Advanced Feature: Multiple Execution At Once
+--------------------------------------------
 
 For shorter programs, you might want to use ``fork.map``. It works like ``fork.fork`` but submits a function
 multiple times for each item given by an iterable.
