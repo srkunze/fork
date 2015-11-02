@@ -17,11 +17,6 @@ __all__ = [
 ]
 
 
-_pools_of = threading.local()
-_pools_of.processes = None
-_pools_of.threads = None
-
-
 def fork(callable_, *args, **kwargs):
     """
     Submits a callable to background process or thread
@@ -65,8 +60,12 @@ def evaluate(result_proxy):
     return result_proxy.__future__.result()
 
 
-def _submit(callable_, waiting_for, *args, **kwargs):
+_pools_of = threading.local()
+_pools_of.processes = None
+_pools_of.threads = None
 
+
+def _submit(callable_, waiting_for, *args, **kwargs):
     if getattr(callable_, '__has_side_effects__', False):
         raise RuntimeError('callable is not safe for running off the MainThread.')
     stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 3)
