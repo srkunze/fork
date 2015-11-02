@@ -3,13 +3,12 @@ from concurrent.futures._base import CANCELLED_AND_NOTIFIED, FINISHED, CANCELLED
 import sys
 import types
 import traceback
-from functools import wraps
 import threading
 import multiprocessing
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, wait, FIRST_COMPLETED
 
-__version__ = '0.33'
-__version_info__ = (0, 33)
+__version__ = '0.34'
+__version_info__ = (0, 34)
 __all__ = [
     'submit', 'process', 'thread',
     'map', 'map_process', 'map_thread',
