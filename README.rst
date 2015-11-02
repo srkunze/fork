@@ -46,10 +46,15 @@ As usual:
     result = fork(my_func, *args, **kwargs)
 
 It's a proxy object that behaves almost exactly like the real return value of ``my_func`` except that
-it's very lazy.
+it's lazy.
 
-You can even add/multiply/etc. such proxy results without blocking which come in quite handy in loops.
-Use ``fork.await`` to force evaluation and get the real and non-lazy value back.
+
+How lazy?
+---------
+
+Very lazy. You can even add, multiply, etc. such proxy results without blocking which come in
+quite hand, especially in loops. Use ``fork.await``, ``str``, ``print``, etc. to force evaluation
+and get the real and non-lazy value back.
 
 .. code:: python
 
@@ -64,7 +69,7 @@ Exception handling
 
 Original (sequential) tracebacks are preserved. That should make debugging easier.
 However, don't try to catch exceptions. You better want to exit and see them.
-Use ``fork.await`` to force evaluation in order to raise potential exceptions.
+When you force evaluation potential exceptions will be raised.
 
 
 Speaking of threads ...
