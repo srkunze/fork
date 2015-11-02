@@ -45,8 +45,8 @@ As usual:
 
     result = fork(my_func, *args, **kwargs)
 
-It's a proxy object that behaves almost exactly like the real return value of ``my_func`` except that it is very lazy.
-This given, you can even add/multiply/etc. these proxy results within loops without blocking.
+It's a proxy object that behaves almost exactly like the real return value of ``my_func`` except that it's very lazy.
+You can even add/multiply/etc. such proxy results without blocking which come in quite handy in loops.
 
 Use ``fork.await`` to force evaluation and get the real and non-lazy value back.
 
