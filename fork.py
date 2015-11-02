@@ -408,15 +408,15 @@ class OperatorFuture(object):
         self.x2 = x2
         self._cached = False
 
-    def result(self):
+    def result(self, timeout=None):
         if not self._cached:
-            stack = [self.evaluate(self)]
+            stack = [self.evaluate(self, timeout)]
             result = None
             exception = None
             while stack:
                 try:
                     node = stack[-1].send(result)
-                    stack.append(self.evaluate(node))
+                    stack.append(self.evaluate(node, timeout))
                     result = None
                 except StopIteration as exc:
                     stack.pop()
@@ -431,7 +431,7 @@ class OperatorFuture(object):
         return self._result
 
     @staticmethod
-    def evaluate(node):
+    def evaluate(node, timeout):
         result = None
         exception = None
         if type(node) == ResultProxy:
