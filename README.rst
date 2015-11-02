@@ -96,15 +96,16 @@ They work just like ``fork.fork`` but enforce the corresponding type of backgrou
 Advanced Feature: Multiple Execution At Once
 --------------------------------------------
 
-For shorter programs, you might want to use ``fork.map``. It works like ``fork.fork`` but submits a function
-multiple times for each item given by an iterable.
+For shorter programs, you might want to use ``fork.map``. It works like ``fork.fork`` but submits
+a function multiple times for each item given by an iterable.
 
 .. code:: python
 
     results = fork.map(create_thumbnail, images)
 
-``fork.map_process`` and ``fork.map_thread`` work accordingly but force a specific type of execution if
-really necessary. Otherwise, just use ``fork.map``. fork take care of that for you in this case again.
+``fork.map_process`` and ``fork.map_thread`` work accordingly and force a specific type of
+execution. Use those if really necessary.
+Otherwise, just use ``fork.map``. fork take care of that for you in this case again.
 
 
 Advanced Feature: Implicit Forks
