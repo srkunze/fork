@@ -92,7 +92,7 @@ They work just like ``fork.fork`` but enforce the corresponding type of backgrou
 Advanced Feature: Multiple Execution At Once
 --------------------------------------------
 
-For shorter programs, you might want to use ``fork.map``. It works like ``fork.fork`` but submits
+You can shorten your programs by using ``fork.map``. It works like ``fork.fork`` but submits
 a function multiple times for each item given by an iterable.
 
 .. code:: python
