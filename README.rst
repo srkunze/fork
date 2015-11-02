@@ -67,7 +67,7 @@ and get the real and non-lazy value back.
 What's better? Threads or Processes?
 ------------------------------------
 
-You don't need to bother. xfork will take care of that for you.
+You don't need to bother. fork will take care of that for you.
 
 You can assist fork by decorating your functions; not decorating defaults to ``fork.cpu_bound``:
 
@@ -116,7 +116,7 @@ a function multiple times for each item given by an iterable.
 
 ``fork.map_process`` and ``fork.map_thread`` work accordingly and force a specific type of
 execution. Use those if really necessary.
-Otherwise, just use ``fork.map``. xfork take care for you in this case again.
+Otherwise, just use ``fork.map``. fork take care for you in this case again.
 
 In order to wait for the completion of a set of result proxies, use ``fork.await_all``. If you want to
 unblock by the first unblocking result proxy, call ``fork.await_any``.
