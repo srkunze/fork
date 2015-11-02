@@ -141,11 +141,11 @@ def _submit(callable_, blocking_type, *args, **kwargs):
     if blocking_type == 'cpu':
         if not _pools_of.processes:
             _pools_of.processes = ProcessPoolExecutor()
-        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
+        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), 3)
     elif blocking_type == 'io':
         if not _pools_of.threads:
             _pools_of.threads = ThreadPoolExecutor(2 * (multiprocessing.cpu_count() or 1))
-        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs))
+        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), 3)
     raise RuntimeError('unknown blocking_type {blocking_type}'.format(blocking_type=blocking_type))
 
 
@@ -194,11 +194,11 @@ class ResultEvaluationError(Exception):
 
 class ResultProxy(object):
 
-    def __init__(self, future):
+    def __init__(self, future, stack_frames_to_pop_off):
         self.__future__ = future
         future.__original_result__ = future.result
         future.result = types.MethodType(result_with_proper_traceback, future)
-        future.__current_stack__ = traceback.format_stack()[:-2]
+        future.__current_stack__ = traceback.format_stack()[:-stack_frames_to_pop_off]
 
     def __repr__(self):
         return repr(self.__future__.result())
@@ -276,82 +276,82 @@ class ResultProxy(object):
         return item in self.__future__.result()
 
     def __add__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 + x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 + x2, self.__future__, other), 2)
 
     def __sub__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 - x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 - x2, self.__future__, other), 2)
 
     def __mul__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 * x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 * x2, self.__future__, other), 2)
 
     def __truediv__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 / x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 / x2, self.__future__, other), 2)
 
     def __floordiv__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 // x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 // x2, self.__future__, other), 2)
 
     def __mod__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 % x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 % x2, self.__future__, other), 2)
 
     def __divmod__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: divmod(x1, x2), self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: divmod(x1, x2), self.__future__, other), 2)
 
     def __pow__(self, other, modulo=None):
         return pow(self.__future__.result(), other, modulo)
 
     def __lshift__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 << x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 << x2, self.__future__, other), 2)
 
     def __rshift__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 >> x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 >> x2, self.__future__, other), 2)
 
     def __and__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 & x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 & x2, self.__future__, other), 2)
 
     def __xor__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 ^ x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 ^ x2, self.__future__, other), 2)
 
     def __or__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 | x2, self.__future__, other))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 | x2, self.__future__, other), 2)
 
     def __radd__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 + x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 + x2, other, self.__future__), 2)
 
     def __rsub__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 - x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 - x2, other, self.__future__), 2)
 
     def __rmul__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 * x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 * x2, other, self.__future__), 2)
 
     def __rtruediv__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 / x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 / x2, other, self.__future__), 2)
 
     def __rfloordiv__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 // x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 // x2, other, self.__future__), 2)
 
     def __rmod__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 % x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 % x2, other, self.__future__), 2)
 
     def __rdivmod__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: divmod(x1, x2), other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: divmod(x1, x2), other, self.__future__), 2)
 
     def __rpow__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: pow(x1, x2), other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: pow(x1, x2), other, self.__future__), 2)
 
     def __rlshift__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 << x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 << x2, other, self.__future__), 2)
 
     def __rrshift__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 >> x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 >> x2, other, self.__future__), 2)
 
     def __rand__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 & x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 & x2, other, self.__future__), 2)
 
     def __rxor__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 ^ x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 ^ x2, other, self.__future__), 2)
 
     def __ror__(self, other):
-        return ResultProxy(OperatorFuture(lambda x1, x2: x1 | x2, other, self.__future__))
+        return ResultProxy(OperatorFuture(lambda x1, x2: x1 | x2, other, self.__future__), 2)
 
     def __neg__(self):
         return -self.__future__.result()
