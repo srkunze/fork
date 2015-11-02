@@ -64,8 +64,8 @@ and get the real and non-lazy value back.
     print(sizes)                               # forces evaluation
 
 
-What's better? Threads or Processes?
-------------------------------------
+Threads or Processes?
+---------------------
 
 You don't need to bother. fork will take care of that for you.
 
