@@ -62,7 +62,7 @@ Speaking of threads ...
 
 and processes? fork will take care of that for you.
 
-You can assist fork by decorating your functions (not decorating defaults to cpu_bound):
+You can assist fork by decorating your functions (not decorating defaults to ``fork.cpu_bound``):
 
 .. code:: python
 
@@ -91,6 +91,23 @@ They work just like ``fork.fork`` but enforce the corresponding type of backgrou
 
     for worker_function in pkg_resources.iter_entry_points(group='worker'):
         process(worker_function)
+
+
+Advanced Feature: Multi-Execution At Once
+-----------------------------------------
+
+For shorter programs, you might want to use ``fork.map``. It works like ``fork.fork`` but submits a function
+multiple times for each item given by an iterable.
+
+.. code:: python
+
+    import pkg_resources
+
+    for worker_function in pkg_resources.iter_entry_points(group='worker'):
+        process(worker_function)
+
+``fork.map_process`` and ``fork.map_thread`` work accordingly but force a specific type of execution if
+really necessary. Otherwise, just use ``fork.map``. fork take care of that for you in this case again.
 
 
 Advanced Feature: Implicit Forks
