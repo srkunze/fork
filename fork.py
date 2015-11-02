@@ -5,30 +5,29 @@ import traceback
 from functools import wraps
 import threading
 import multiprocessing
-from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
-
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, wait, FIRST_COMPLETED
 
 __version__ = '0.33'
 __version_info__ = (0, 33)
 __all__ = [
-    'submit', 'process', 'thread', 'map',
-    'eval', 'eval_all',
+    'submit', 'process', 'thread', 'map', 'map_process', 'map_thread',
+    'eval', 'eval_all', 'await', 'await_all', 'await_any',
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork',
     'ResultEvaluationError',
     'evaluate', 'go', 'fork',
 ]
 
 
-def submit(callable_, *args, **kwargs):
+def submit(callable_, *args, timeout=None, **kwargs):
     """
-    Submits a callable to a background process or thread
-    depending on its io- or cpu-boundness.
+    Submits a callable to a background job as a process
+    or as a thread depending on its io- or cpu-boundness.
     Returns an proxy object for the return value.
     """
     return _submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args, **kwargs)
 
 
-def process(callable_, *args, **kwargs):
+def process(callable_, *args, timeout=None, **kwargs):
     """
     Submits a callable to a background process. Only use, if you
     really need control over the type of background execution.
@@ -37,7 +36,7 @@ def process(callable_, *args, **kwargs):
     return _submit(callable_, 'cpu', *args, **kwargs)
 
 
-def thread(callable_, *args, **kwargs):
+def thread(callable_, *args, timeout=None, **kwargs):
     """
     Submits a callable to a background thread. Only use, if you
     really need control over the type of background execution.
@@ -46,17 +45,17 @@ def thread(callable_, *args, **kwargs):
     return _submit(callable_, 'io', *args, **kwargs)
 
 
-def map(callable_, *iterables):
+def map(callable_, *iterables, timeout=None):
     """
     For each item in iterables submits the callable
-    to a background process or thread depending on
-    its io- or cpu-boundness.
+    to a background job as a process or as a thread
+    depending on its io- or cpu-boundness.
     Returns an iterable of proxy objects for each return value.
     """
     return [_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)]
 
 
-def map_process(callable_, *iterables):
+def map_process(callable_, *iterables, timeout=None):
     """
     For each item in iterables submits the callable
     to a background thread.
@@ -65,7 +64,7 @@ def map_process(callable_, *iterables):
     return [_submit(callable_, 'cpu', *args) for args in zip(*iterables)]
 
 
-def map_thread(callable_, *iterables):
+def map_thread(callable_, *iterables, timeout=None):
     """
     For each item in iterables submits
     a callable to background process or thread
@@ -75,18 +74,28 @@ def map_thread(callable_, *iterables):
     return [_submit(callable_, 'io', *args) for args in zip(*iterables)]
 
 
-def eval(result_proxy):
+def await(result_proxy):
     """
-    Unwraps the result from the proxy.
+    Awaits the completion of a background job of a given result_proxy
+    and returns its result value or raises its exception.
     """
     return result_proxy.__future__.result()
 
 
-def eval_all(result_proxies):
+def await_all(result_proxies):
     """
-    Unwraps the results from an iterable of proxies.
+    Awaits the completion of the background jobs of all given result_proxies
+    and returns their result values or raises the first exception encountered.
     """
-    return (result_proxy.__future__.result() for result_proxy in result_proxies)
+    return [result_proxy.__future__.result() for result_proxy in result_proxies]
+
+
+def await_any(result_proxies):
+    """
+    Awaits for the completion of the result.
+    """
+    done_futures = wait((result_proxy.__future__ for result_proxy in result_proxies if result_proxy.__future__.done()), return_when=FIRST_COMPLETED)
+    return [result_proxy for result_proxy in result_proxies if result_proxy.__future__ in done_futures]
 
 
 _pools_of = threading.local()
@@ -459,4 +468,4 @@ def result_with_proper_traceback(future):
 # aliases
 go = submit
 fork = submit
-evaluate = eval
+evaluate = await
