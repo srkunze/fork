@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from concurrent.futures._base import CANCELLED_AND_NOTIFIED, FINISHED, CANCELLED
 import sys
 import types
 import traceback
@@ -10,15 +11,17 @@ from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, 
 __version__ = '0.33'
 __version_info__ = (0, 33)
 __all__ = [
-    'submit', 'process', 'thread', 'map', 'map_process', 'map_thread',
-    'eval', 'eval_all', 'await', 'await_all', 'await_any',
-    'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork',
+    'submit', 'process', 'thread',
+    'map', 'map_process', 'map_thread',
+    'block_map', 'block_map_process', 'block_map_thread',
+    'await', 'await_all', 'await_any',
+    'cpu_bound', 'io_bound',
     'ResultEvaluationError',
     'evaluate', 'go', 'fork',
 ]
 
 
-def submit(callable_, *args, timeout=None, **kwargs):
+def submit(callable_, *args, **kwargs):
     """
     Submits a callable to a background job as a process
     or as a thread depending on its io- or cpu-boundness.
@@ -27,7 +30,7 @@ def submit(callable_, *args, timeout=None, **kwargs):
     return _submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args, **kwargs)
 
 
-def process(callable_, *args, timeout=None, **kwargs):
+def process(callable_, *args, **kwargs):
     """
     Submits a callable to a background process. Only use, if you
     really need control over the type of background execution.
@@ -36,7 +39,7 @@ def process(callable_, *args, timeout=None, **kwargs):
     return _submit(callable_, 'cpu', *args, **kwargs)
 
 
-def thread(callable_, *args, timeout=None, **kwargs):
+def thread(callable_, *args, **kwargs):
     """
     Submits a callable to a background thread. Only use, if you
     really need control over the type of background execution.
@@ -45,7 +48,7 @@ def thread(callable_, *args, timeout=None, **kwargs):
     return _submit(callable_, 'io', *args, **kwargs)
 
 
-def map(callable_, *iterables, timeout=None):
+def map(callable_, *iterables):
     """
     For each item in iterables submits the callable
     to a background job as a process or as a thread
@@ -55,7 +58,7 @@ def map(callable_, *iterables, timeout=None):
     return [_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)]
 
 
-def map_process(callable_, *iterables, timeout=None):
+def map_process(callable_, *iterables):
     """
     For each item in iterables submits the callable
     to a background thread.
@@ -64,7 +67,7 @@ def map_process(callable_, *iterables, timeout=None):
     return [_submit(callable_, 'cpu', *args) for args in zip(*iterables)]
 
 
-def map_thread(callable_, *iterables, timeout=None):
+def map_thread(callable_, *iterables):
     """
     For each item in iterables submits
     a callable to background process or thread
@@ -74,12 +77,41 @@ def map_thread(callable_, *iterables, timeout=None):
     return [_submit(callable_, 'io', *args) for args in zip(*iterables)]
 
 
-def await(result_proxy):
+def block_map(callable_, timeout=None, *iterables):
+    """
+    For each item in iterables submits the callable
+    to a background job as a process or as a thread
+    depending on its io- or cpu-boundness.
+    Returns an iterable of proxy objects for each return value.
+    """
+    return [_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)]
+
+
+def block_map_process(callable_, timeout=None, *iterables):
+    """
+    For each item in iterables submits the callable
+    to a background thread.
+    Returns an iterable of proxy objects for each return value.
+    """
+    return [_submit(callable_, 'cpu', *args) for args in zip(*iterables)]
+
+
+def block_map_thread(callable_, timeout=None, *iterables):
+    """
+    For each item in iterables submits
+    a callable to background process or thread
+    depending on its io- or cpu-boundness.
+    Returns an iterable of proxy objects for each return value.
+    """
+    return [_submit(callable_, 'io', *args) for args in zip(*iterables)]
+
+
+def await(result_proxy, timeout=None):
     """
     Awaits the completion of a background job of a given result_proxy
     and returns its result value or raises its exception.
     """
-    return result_proxy.__future__.result()
+    return result_proxy.__future__.result(timeout)
 
 
 def await_all(result_proxies):
@@ -92,9 +124,10 @@ def await_all(result_proxies):
 
 def await_any(result_proxies):
     """
-    Awaits for the completion of the result.
+    Awaits the completion of a background job of at least one given result_proxy
+    and return result values or raises the first exception encountered.
     """
-    done_futures = wait((result_proxy.__future__ for result_proxy in result_proxies if result_proxy.__future__.done()), return_when=FIRST_COMPLETED)
+    done_futures = wait([result_proxy.__future__ for result_proxy in result_proxies], return_when=FIRST_COMPLETED)
     return [result_proxy for result_proxy in result_proxies if result_proxy.__future__ in done_futures]
 
 
@@ -104,15 +137,14 @@ _pools_of.threads = None
 
 
 def _submit(callable_, blocking_type, *args, **kwargs):
-    stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 3)
     if blocking_type == 'cpu':
         if not _pools_of.processes:
             _pools_of.processes = ProcessPoolExecutor()
-        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
+        return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs))
     elif blocking_type == 'io':
         if not _pools_of.threads:
             _pools_of.threads = ThreadPoolExecutor(2 * (multiprocessing.cpu_count() or 1))
-        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
+        return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs))
     raise RuntimeError('unknown blocking_type {blocking_type}'.format(blocking_type=blocking_type))
 
 
@@ -146,40 +178,6 @@ def io_bound(callable_):
     return callable_
 
 
-def cpu_bound_fork(callable_):
-    """
-    Converts callable into a fork marked as mainly
-    cpu-bound and safe for running off the MainThread.
-    """
-    callable_ = cpu_bound(callable_)
-    callable_.__stack_frames_to_pop_off__ = 4
-
-    @wraps(callable_)
-    def fork_wrapper(*args, **kwargs):
-        return fork(callable_, *args, **kwargs)
-
-    import sys
-    new_name = '__decorated_cpu_bound_function_{name}__'.format(name=callable_.__name__)
-    callable_.__name__ = new_name
-    setattr(sys.modules[callable_.__module__], new_name, callable_)
-
-    return fork_wrapper
-
-
-def io_bound_fork(callable_):
-    """
-    Converts callable into a fork marked as mainly
-    io-bound and safe for running off the MainThread.
-    """
-    callable_ = io_bound(callable_)
-    callable_.__stack_frames_to_pop_off__ = 4
-
-    @wraps(callable_)
-    def fork_wrapper(*args, **kwargs):
-        return fork(callable_, *args, **kwargs)
-    return fork_wrapper
-
-
 class TransportException(Exception):
 
     #FIXME: remove default parameters when https://github.com/agronholm/pythonfutures/issues/30 is fixed
@@ -195,11 +193,11 @@ class ResultEvaluationError(Exception):
 
 class ResultProxy(object):
 
-    def __init__(self, future, stack_frames_to_pop_off=2):
+    def __init__(self, future):
         self.__future__ = future
         future.__original_result__ = future.result
         future.result = types.MethodType(result_with_proper_traceback, future)
-        future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
+        future.__current_stack__ = traceback.format_stack()[:-3]
 
     def __repr__(self):
         return repr(self.__future__.result())
@@ -401,6 +399,9 @@ class ResultProxy(object):
 
 class OperatorFuture(object):
 
+    _result = None
+    _exception = None
+
     def __init__(self, op, x1, x2):
         self.op = op
         self.x1 = x1
@@ -429,7 +430,8 @@ class OperatorFuture(object):
             raise self._exception
         return self._result
 
-    def evaluate(self, node):
+    @staticmethod
+    def evaluate(node):
         result = None
         exception = None
         if type(node) == ResultProxy:
@@ -450,10 +452,34 @@ class OperatorFuture(object):
             result = node
         raise StopIteration((result, exception))
 
+    # Compatibility with concurrency.futures.Future for await_any
+    @property
+    def _state(self):
+        if self.x1._state == CANCELLED or self.x2._state == CANCELLED:
+            return CANCELLED
+        if self.x1._state == CANCELLED_AND_NOTIFIED or self.x2._state == CANCELLED_AND_NOTIFIED:
+            return CANCELLED_AND_NOTIFIED
+        if self.x1._state == FINISHED and self.x2._state == FINISHED:
+            return FINISHED
+        return None
 
-def result_with_proper_traceback(future):
+    @property
+    def _condition(self):
+        class _condition:
+            @classmethod
+            def acquire(cls):
+                self.x1._condition.acquire()
+                self.x2._condition.acquire()
+            @classmethod
+            def release(cls):
+                self.x1._condition.release()
+                self.x2._condition.release()
+        return _condition
+
+
+def result_with_proper_traceback(future, timeout=None):
     try:
-        return future.__original_result__()
+        return future.__original_result__(timeout)
     except ResultEvaluationError:
         raise
     except TransportException as exc:
