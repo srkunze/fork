@@ -7,8 +7,8 @@ import threading
 import multiprocessing
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, wait, FIRST_COMPLETED
 
-__version__ = '0.34'
-__version_info__ = (0, 34)
+__version__ = '0.35'
+__version_info__ = (0, 35)
 __all__ = [
     'submit', 'process', 'thread',
     'map', 'map_process', 'map_thread',
@@ -83,7 +83,7 @@ def block_map(callable_, timeout=None, *iterables):
     depending on its io- or cpu-boundness.
     Returns an iterable of proxy objects for each return value.
     """
-    return [_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)]
+    return await_all([_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)], timeout)
 
 
 def block_map_process(callable_, timeout=None, *iterables):
@@ -92,7 +92,7 @@ def block_map_process(callable_, timeout=None, *iterables):
     to a background thread.
     Returns an iterable of proxy objects for each return value.
     """
-    return [_submit(callable_, 'cpu', *args) for args in zip(*iterables)]
+    return await_all([_submit(callable_, 'cpu', *args) for args in zip(*iterables)], timeout)
 
 
 def block_map_thread(callable_, timeout=None, *iterables):
@@ -102,7 +102,7 @@ def block_map_thread(callable_, timeout=None, *iterables):
     depending on its io- or cpu-boundness.
     Returns an iterable of proxy objects for each return value.
     """
-    return [_submit(callable_, 'io', *args) for args in zip(*iterables)]
+    return await_all([_submit(callable_, 'io', *args) for args in zip(*iterables)], timeout)
 
 
 def await(result_proxy, timeout=None):
