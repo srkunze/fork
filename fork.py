@@ -25,7 +25,7 @@ def submit(callable_, *args, **kwargs):
     depending on its io- or cpu-boundness.
     Returns an proxy object for the return value.
     """
-    return _submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args, **kwargs)
+    return _submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args, **kwargs)
 
 
 def process(callable_, *args, **kwargs):
@@ -53,7 +53,7 @@ def map(callable_, *iterables):
     its io- or cpu-boundness.
     Returns an iterable of proxy objects for each return value.
     """
-    return [_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables)]
+    return [_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)]
 
 
 def map_process(callable_, *iterables):
@@ -94,19 +94,17 @@ _pools_of.processes = None
 _pools_of.threads = None
 
 
-def _submit(callable_, waiting_for, *args, **kwargs):
-    if getattr(callable_, '__has_side_effects__', False):
-        raise RuntimeError('callable is not safe for running off the MainThread.')
+def _submit(callable_, blocking_type, *args, **kwargs):
     stack_frames_to_pop_off = getattr(callable_, '__stack_frames_to_pop_off__', 3)
-    if waiting_for == 'cpu':
+    if blocking_type == 'cpu':
         if not _pools_of.processes:
             _pools_of.processes = ProcessPoolExecutor()
         return ResultProxy(_pools_of.processes.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
-    elif waiting_for == 'io':
+    elif blocking_type == 'io':
         if not _pools_of.threads:
             _pools_of.threads = ThreadPoolExecutor(2 * (multiprocessing.cpu_count() or 1))
         return ResultProxy(_pools_of.threads.submit(_safety_wrapper, callable_, *args, **kwargs), stack_frames_to_pop_off)
-    raise RuntimeError('unknown waiting_for {waiting_for}'.format(waiting_for=waiting_for))
+    raise RuntimeError('unknown blocking_type {blocking_type}'.format(blocking_type=blocking_type))
 
 
 def _safety_wrapper(callable_, *args, **kwargs):
@@ -127,8 +125,7 @@ def cpu_bound(callable_):
     """
     Marks callable as mainly cpu-bound and safe for running off the MainThread.
     """
-    callable_.__has_side_effects__ = False
-    callable_.__waiting_for__ = 'cpu'
+    callable_.__blocking_type__ = 'cpu'
     return callable_
 
 
@@ -136,8 +133,7 @@ def io_bound(callable_):
     """
     Marks callable as mainly io-bound and safe for running off the MainThread.
     """
-    callable_.__has_side_effects__ = False
-    callable_.__waiting_for__ = 'io'
+    callable_.__blocking_type__ = 'io'
     return callable_
 
 
@@ -173,14 +169,6 @@ def io_bound_fork(callable_):
     def fork_wrapper(*args, **kwargs):
         return fork(callable_, *args, **kwargs)
     return fork_wrapper
-
-
-def unsafe(callable_):
-    """
-    Marks callable as not safe for running off the MainThread.
-    """
-    callable_.__has_side_effects__ = True
-    return callable_
 
 
 class TransportException(Exception):
