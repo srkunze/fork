@@ -53,7 +53,7 @@ How lazy?
 ---------
 
 Very lazy. You can even add, multiply, etc. such proxy results without blocking which come in
-quite hand, especially in loops. Use ``fork.await``, ``str``, ``print``, etc. to force evaluation
+quite handy, especially in loops. Use ``fork.await``, ``str``, ``print``, etc. to force evaluation
 and get the real and non-lazy value back.
 
 .. code:: python
