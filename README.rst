@@ -87,7 +87,10 @@ They work just like ``fork.fork`` but enforce the corresponding type of backgrou
 
 .. code:: python
 
-    fork.map(create_thumbnail, images)
+    import pkg_resources
+
+    for worker_function in pkg_resources.iter_entry_points(group='worker'):
+        process(worker_function)
 
 
 Advanced Feature: Multiple Execution At Once
@@ -98,10 +101,7 @@ multiple times for each item given by an iterable.
 
 .. code:: python
 
-    import pkg_resources
-
-    for worker_function in pkg_resources.iter_entry_points(group='worker'):
-        process(worker_function)
+    fork.map(create_thumbnail, images)
 
 ``fork.map_process`` and ``fork.map_thread`` work accordingly but force a specific type of execution if
 really necessary. Otherwise, just use ``fork.map``. fork take care of that for you in this case again.
