@@ -13,7 +13,7 @@ __version_info__ = (0, 33)
 __all__ = [
     'submit', 'process', 'thread', 'map',
     'eval', 'eval_all',
-    'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
+    'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork',
     'ResultEvaluationError',
     'evaluate', 'go', 'fork',
 ]
