@@ -64,18 +64,10 @@ and get the real and non-lazy value back.
     print(sizes)                               # forces evaluation
 
 
-Exception handling
-------------------
+Threads or Processes?
+---------------------
 
-Original (sequential) tracebacks are preserved. That should make debugging easier.
-However, don't try to catch exceptions. You better want to exit and see them.
-When you force evaluation potential exceptions will be raised.
-
-
-Speaking of threads ...
------------------------
-
-and processes? fork will take care of that for you.
+Don't bother. xfork will take care of that for you.
 
 You can assist fork by decorating your functions (not decorating defaults to ``fork.cpu_bound``):
 
@@ -88,6 +80,14 @@ You can assist fork by decorating your functions (not decorating defaults to ``f
     @cpu_bound
     def heavy_computation(n):
         # implementation
+
+
+Exception handling
+------------------
+
+Original (sequential) tracebacks are preserved. That should make debugging easier.
+However, don't try to catch exceptions. You better want to exit and see them.
+When you force evaluation potential exceptions will be raised.
 
 
 Advanced Feature: Force Specific Type of Execution
@@ -116,7 +116,7 @@ a function multiple times for each item given by an iterable.
 
 ``fork.map_process`` and ``fork.map_thread`` work accordingly and force a specific type of
 execution. Use those if really necessary.
-Otherwise, just use ``fork.map``. fork take care of that for you in this case again.
+Otherwise, just use ``fork.map``. xfork take care for you in this case again.
 
 In order to wait for the completion of a set of result proxies, use ``fork.await_all``. If you want to
 unblock by the first unblocking result proxy, call ``fork.await_any``.
