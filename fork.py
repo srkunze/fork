@@ -53,7 +53,7 @@ def map(callable_, *iterables):
     its io- or cpu-boundness.
     Returns an iterable of proxy objects for each return value.
     """
-    return (_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables))
+    return [_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables)]
 
 
 def map_process(callable_, *iterables):
@@ -62,7 +62,7 @@ def map_process(callable_, *iterables):
     to a background thread.
     Returns an iterable of proxy objects for each return value.
     """
-    return (_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables))
+    return [_submit(callable_, 'cpu', *args) for args in zip(*iterables)]
 
 
 def map_thread(callable_, *iterables):
@@ -72,7 +72,7 @@ def map_thread(callable_, *iterables):
     depending on its io- or cpu-boundness.
     Returns an iterable of proxy objects for each return value.
     """
-    return (_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables))
+    return [_submit(callable_, 'io', *args) for args in zip(*iterables)]
 
 
 def eval(result_proxy):
@@ -200,13 +200,9 @@ class ResultProxy(object):
 
     def __init__(self, future, stack_frames_to_pop_off=2):
         self.__future__ = future
-        def add_things(future):
-            if future._exception:
-                future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
-            future.__original_result__ = future.result
-            future.result = types.MethodType(result_with_proper_traceback, future)
-        if hasattr(future, 'add_done_callback'):
-            future.add_done_callback(add_things)
+        future.__original_result__ = future.result
+        future.result = types.MethodType(result_with_proper_traceback, future)
+        future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
 
     def __repr__(self):
         return repr(self.__future__.result())
