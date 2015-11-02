@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from concurrent.futures._base import CANCELLED_AND_NOTIFIED, FINISHED, CANCELLED
+from concurrent.futures._base import CANCELLED_AND_NOTIFIED, FINISHED, CANCELLED, ALL_COMPLETED
 import sys
 import types
 import traceback
@@ -114,20 +114,21 @@ def await(result_proxy, timeout=None):
     return result_proxy.__future__.result(timeout)
 
 
-def await_all(result_proxies):
+def await_all(result_proxies, timeout=None):
     """
     Awaits the completion of the background jobs of all given result_proxies
     and returns their result values or raises the first exception encountered.
     """
+    wait([result_proxy.__future__ for result_proxy in result_proxies], timeout=timeout, return_when=ALL_COMPLETED)
     return [result_proxy.__future__.result() for result_proxy in result_proxies]
 
 
-def await_any(result_proxies):
+def await_any(result_proxies, timeout=None):
     """
     Awaits the completion of a background job of at least one given result_proxy
     and return result values or raises the first exception encountered.
     """
-    done_futures = wait([result_proxy.__future__ for result_proxy in result_proxies], return_when=FIRST_COMPLETED)
+    done_futures = wait([result_proxy.__future__ for result_proxy in result_proxies], timeout=timeout, return_when=FIRST_COMPLETED)
     return [result_proxy for result_proxy in result_proxies if result_proxy.__future__ in done_futures]
 
 
@@ -438,7 +439,7 @@ class OperatorFuture(object):
             result = yield node.__future__
         elif type(node) == Future:
             try:
-                result = node.result()
+                result = node.result(timeout)
             except BaseException as exc:
                 exception = exc
         elif type(node) == OperatorFuture:
