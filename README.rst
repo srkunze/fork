@@ -64,12 +64,12 @@ and get the real and non-lazy value back.
     print(sizes)                               # forces evaluation
 
 
-Threads or Processes?
----------------------
+What's better? Threads or Processes?
+------------------------------------
 
-Don't bother. xfork will take care of that for you.
+You don't need to bother. xfork will take care of that for you.
 
-You can assist fork by decorating your functions (not decorating defaults to ``fork.cpu_bound``):
+You can assist fork by decorating your functions; not decorating defaults to ``fork.cpu_bound``:
 
 .. code:: python
 
