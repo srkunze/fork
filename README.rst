@@ -54,7 +54,7 @@ Exception handling
 
 Original (sequential) tracebacks are preserved. That should make debugging easier.
 However, don't try to catch exceptions. You better want to exit and see them.
-Use ``fork.evaluate`` to force evaluation in order to raise potential exceptions.
+Use ``fork.await`` to force evaluation in order to raise potential exceptions.
 
 
 Speaking of threads ...
@@ -71,11 +71,7 @@ You can assist fork by decorating your functions (not decorating defaults to ``f
         # implementation
 
     @cpu_bound
-    def fib(n):
-        # naive implementation of Fibonacci numbers
-
-    @unsafe # don't fork; run sequentially
-    def weird_side_effects(*args, **kwargs):
+    def heavy_computation(n):
         # implementation
 
 
@@ -107,29 +103,17 @@ a function multiple times for each item given by an iterable.
 execution. Use those if really necessary.
 Otherwise, just use ``fork.map``. fork take care of that for you in this case again.
 
+In order to wait for the completion of a set of result proxies, use ``fork.await_all``. If you want to
+unblock by the first unblocking result proxy, call ``fork.await_any``.
 
-Advanced Feature: Implicit Forks
---------------------------------
-
-If you don't like the fork calling syntax, you can convert functions into stand-alone forks.
-
-**Use with caution.**
-
-**Please note, I am not happy with these ones. If they are really, really necessary, let me know.**
+There are also blocking variants available: ``fork.block_map``, ``fork.block_map_process`` and
+``fork.block_map_thread``; in case you need some syntactic sugar:
 
 .. code:: python
 
-    @io_bound_fork
-    def create_thumbnail_by_webservice(image):
-        # implementation
-    
-    @cpu_bound_fork
-    def create_thumbnail_by_bare_processing_power(image):
-        # implementation
-    
-    # the following two lines spawn two forks
-    create_thumbnail_by_webservice(image1)
-    create_thumbnail_by_bare_processing_power(image2)
+    fork.await_all(fork.map(create_thumbnail, images))
+    # equals
+    fork.block_map(create_thumbnail, images)
 
 
 Conclusion
