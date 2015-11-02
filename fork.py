@@ -8,27 +8,20 @@ import multiprocessing
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor
 
 
-__version__ = '0.32'
-__version_info__ = (0, 32)
+__version__ = '0.33'
+__version_info__ = (0, 33)
 __all__ = [
-    'fork', 'process', 'thread', 'evaluate',
+    'submit', 'process', 'thread', 'map',
+    'eval', 'eval_all',
     'cpu_bound', 'io_bound', 'cpu_bound_fork', 'io_bound_fork', 'unsafe',
     'ResultEvaluationError',
+    'evaluate', 'go', 'fork',
 ]
-
-
-def fork(callable_, *args, **kwargs):
-    """
-    Submits a callable to background process or thread
-    depending on its io- or cpu-boundness.
-    Returns an proxy object for the return value.
-    """
-    return _submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args, **kwargs)
 
 
 def submit(callable_, *args, **kwargs):
     """
-    Submits a callable to background process or thread
+    Submits a callable to a background process or thread
     depending on its io- or cpu-boundness.
     Returns an proxy object for the return value.
     """
@@ -37,7 +30,7 @@ def submit(callable_, *args, **kwargs):
 
 def process(callable_, *args, **kwargs):
     """
-    Submits a callable to background process. Only use, if you
+    Submits a callable to a background process. Only use, if you
     really need control over the type of background execution.
     Returns an proxy object for the return value.
     """
@@ -46,18 +39,54 @@ def process(callable_, *args, **kwargs):
 
 def thread(callable_, *args, **kwargs):
     """
-    Submits a callable to background thread. Only use, if you
+    Submits a callable to a background thread. Only use, if you
     really need control over the type of background execution.
     Returns an proxy object for the return value.
     """
     return _submit(callable_, 'io', *args, **kwargs)
 
 
-def evaluate(result_proxy):
+def map(callable_, *iterables):
+    """
+    For each item in iterables submits the callable
+    to a background process or thread depending on
+    its io- or cpu-boundness.
+    Returns an iterable of proxy objects for each return value.
+    """
+    return (_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables))
+
+
+def map_process(callable_, *iterables):
+    """
+    For each item in iterables submits the callable
+    to a background thread.
+    Returns an iterable of proxy objects for each return value.
+    """
+    return (_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables))
+
+
+def map_thread(callable_, *iterables):
+    """
+    For each item in iterables submits
+    a callable to background process or thread
+    depending on its io- or cpu-boundness.
+    Returns an iterable of proxy objects for each return value.
+    """
+    return (_submit(callable_, getattr(callable_, '__waiting_for__', 'cpu'), *args) for args in zip(*iterables))
+
+
+def eval(result_proxy):
     """
     Unwraps the result from the proxy.
     """
     return result_proxy.__future__.result()
+
+
+def eval_all(result_proxies):
+    """
+    Unwraps the results from an iterable of proxies.
+    """
+    return (result_proxy.__future__.result() for result_proxy in result_proxies)
 
 
 _pools_of = threading.local()
@@ -170,10 +199,14 @@ class ResultEvaluationError(Exception):
 class ResultProxy(object):
 
     def __init__(self, future, stack_frames_to_pop_off=2):
-        future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
-        future.__original_result__ = future.result
-        future.result = types.MethodType(result_with_proper_traceback, future)
         self.__future__ = future
+        def add_things(future):
+            if future._exception:
+                future.__current_stack__ = traceback.format_stack()[:(-stack_frames_to_pop_off)]
+            future.__original_result__ = future.result
+            future.result = types.MethodType(result_with_proper_traceback, future)
+        if hasattr(future, 'add_done_callback'):
+            future.add_done_callback(add_things)
 
     def __repr__(self):
         return repr(self.__future__.result())
@@ -437,3 +470,9 @@ def result_with_proper_traceback(future):
 
     original_traceback = '\n    '.join(''.join(['\n\nOriginal Traceback (most recent call last):\n'] + future.__current_stack__ + traceback_info).split('\n'))
     raise ResultEvaluationError(original_traceback)
+
+
+# aliases
+go = submit
+fork = submit
+evaluate = eval

@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name='xfork',
-    version='0.32',
+    version='0.33',
     description='submitting cpu-bound tasks to processes and io-bound tasks to threads',
     author='Sven R. Kunze',
     author_email='srkunze@mail.de',
