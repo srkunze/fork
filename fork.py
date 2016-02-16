@@ -7,8 +7,8 @@ import threading
 import multiprocessing
 from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, wait, FIRST_COMPLETED, ALL_COMPLETED
 
-__version__ = '0.36'
-__version_info__ = (0, 36)
+__version__ = '0.37'
+__version_info__ = (0, 37)
 __all__ = [
     'submit', 'process', 'thread',
     'map', 'map_process', 'map_thread',
