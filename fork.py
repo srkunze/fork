@@ -22,85 +22,107 @@ __all__ = [
 
 def submit(callable_, *args, **kwargs):
     """
-    Submits a callable to a background job as a process
+    Submit the callable to a background job as a process
     or as a thread depending on its io- or cpu-boundness.
-    Returns an proxy object for the return value.
+
+    Return an proxy object for the future return value.
     """
     return _submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args, **kwargs)
 
 
 def process(callable_, *args, **kwargs):
     """
-    Submits a callable to a background process. Only use, if you
-    really need control over the type of background execution.
-    Returns an proxy object for the return value.
+    Submit a callable to a background process.
+
+    Return an proxy object for the future return value.
+
+    NOTE: Use only, if you really need control over the type of background execution.
     """
     return _submit(callable_, 'cpu', *args, **kwargs)
 
 
 def thread(callable_, *args, **kwargs):
     """
-    Submits a callable to a background thread. Only use, if you
-    really need control over the type of background execution.
-    Returns an proxy object for the return value.
+    Submit a callable to a background thread.
+
+    Return an proxy object for the future return value.
+
+    NOTE: Use only, if you really need control over the type of background execution.
     """
     return _submit(callable_, 'io', *args, **kwargs)
 
 
 def map(callable_, *iterables):
     """
-    For each item in iterables submits the callable
-    to a background job as a process or as a thread
-    depending on its io- or cpu-boundness.
-    Returns an iterable of proxy objects for each return value.
+    Submit the callable to a background job as a process
+    or as a thread depending on its io- or cpu-boundness
+    for each item in iterables with *item as arguments.
+
+    Return an iterable of proxy objects for each future return value.
     """
     return [_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)]
 
 
 def map_process(callable_, *iterables):
     """
-    For each item in iterables submits the callable
-    to a background thread.
-    Returns an iterable of proxy objects for each return value.
+    Submit the callable to a background process for each item
+    in iterables with *item as arguments.
+
+    Return an iterable of proxy objects for each future return value.
+
+    NOTE: Use only, if you really need control over the type of background execution.
     """
     return [_submit(callable_, 'cpu', *args) for args in zip(*iterables)]
 
 
 def map_thread(callable_, *iterables):
     """
-    For each item in iterables submits
-    a callable to background process or thread
-    depending on its io- or cpu-boundness.
-    Returns an iterable of proxy objects for each return value.
+    Submit the callable to a background thread for each item
+    in iterables with *item as arguments.
+
+    Return an iterable of proxy objects for each future return value.
+
+    NOTE: Use only, if you really need control over the type of background execution.
     """
     return [_submit(callable_, 'io', *args) for args in zip(*iterables)]
 
 
 def block_map(callable_, timeout=None, *iterables):
     """
-    For each item in iterables submits the callable
-    to a background job as a process or as a thread
-    depending on its io- or cpu-boundness.
-    Returns an iterable of proxy objects for each return value.
+    Submit the callable to a foreground job as a process
+    or as a thread depending on its io- or cpu-boundness
+    for each item in iterables with *item as arguments.
+
+    Return an iterable of return values.
+
+    Raise concurrent.futures.TimeoutError if not all
+    foreground jobs return in time.
     """
     return await_all([_submit(callable_, getattr(callable_, '__blocking_type__', 'cpu'), *args) for args in zip(*iterables)], timeout)
 
 
 def block_map_process(callable_, timeout=None, *iterables):
     """
-    For each item in iterables submits the callable
-    to a background thread.
-    Returns an iterable of proxy objects for each return value.
+    Submit the callable to a new foreground process
+    for each item in iterables with *item as arguments.
+
+    Return an iterable of return values.
+
+    Raise concurrent.futures.TimeoutError if not all
+    foreground processes return in time.
     """
     return await_all([_submit(callable_, 'cpu', *args) for args in zip(*iterables)], timeout)
 
 
 def block_map_thread(callable_, timeout=None, *iterables):
     """
-    For each item in iterables submits
-    a callable to background process or thread
-    depending on its io- or cpu-boundness.
-    Returns an iterable of proxy objects for each return value.
+    Submit the callable to a new foreground thread
+    for each item in iterables with *item as arguments.
+
+    Return an iterable of return values.
+
+    Raise concurrent.futures.TimeoutError if not all
+    foreground threads return in time.
     """
     return await_all([_submit(callable_, 'io', *args) for args in zip(*iterables)], timeout)
 
