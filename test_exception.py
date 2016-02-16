@@ -141,7 +141,7 @@ Traceback \(most recent call last\):
     print\(x\)
   File ".*/fork\.py", line \d+, in __str__
     return str\(self\.__future__\.result\(\)\)
-  File ".*/fork\.py", line \d+, in result_with_proper_traceback
+  File ".*/fork\.py", line \d+, in _result_with_proper_traceback
     raise ResultEvaluationError\(original_traceback\)
 (fork\.)?ResultEvaluationError:\s*
 \s*
@@ -163,7 +163,7 @@ Traceback \(most recent call last\):
     print\(x\)
   File ".*/fork\.py", line \d+, in __str__
     return str\(self.__future__.result\(\)\)
-  File ".*/fork\.py", line \d+, in result_with_proper_traceback
+  File ".*/fork\.py", line \d+, in _result_with_proper_traceback
     raise ResultEvaluationError\(original_traceback\)
 (fork.)?ResultEvaluationError:\s*
 \s*

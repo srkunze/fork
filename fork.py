@@ -196,7 +196,7 @@ class ResultProxy(object):
     def __init__(self, future, stack_frames_to_pop_off):
         self.__future__ = future
         future.__original_result__ = future.result
-        future.result = types.MethodType(result_with_proper_traceback, future)
+        future.result = types.MethodType(_result_with_proper_traceback, future)
         future.__current_stack__ = traceback.format_stack()[:-stack_frames_to_pop_off]
 
     def __repr__(self):
@@ -477,7 +477,7 @@ class OperatorFuture(object):
         return _condition
 
 
-def result_with_proper_traceback(future, timeout=None):
+def _result_with_proper_traceback(future, timeout=None):
     try:
         return future.__original_result__(timeout)
     except ResultEvaluationError:           # exception carrying original tracebacks
