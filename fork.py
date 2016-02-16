@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
-from concurrent.futures._base import CANCELLED_AND_NOTIFIED, FINISHED, CANCELLED, ALL_COMPLETED
+
 import sys
 import types
 import traceback
 import threading
 import multiprocessing
-from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, wait, FIRST_COMPLETED
+from concurrent.futures import Future, ProcessPoolExecutor, ThreadPoolExecutor, wait, FIRST_COMPLETED, ALL_COMPLETED
 
 __version__ = '0.36'
 __version_info__ = (0, 36)
@@ -477,6 +477,7 @@ class OperatorFuture(object):
     # Compatibility with concurrency.futures.Future for await_any
     @property
     def _state(self):
+        from concurrent.futures._base import CANCELLED_AND_NOTIFIED, FINISHED, CANCELLED
         if self.x1._state == CANCELLED or self.x2._state == CANCELLED:
             return CANCELLED
         if self.x1._state == CANCELLED_AND_NOTIFIED or self.x2._state == CANCELLED_AND_NOTIFIED:
